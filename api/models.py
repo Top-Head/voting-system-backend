@@ -44,7 +44,7 @@ class Member(models.Model):
     email = models.EmailField()
     classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
     turma = models.CharField(max_length=2)  
-    course = models.CharField(max_length=20, choices=COURSE_CHOICES)
+    course = models.CharField(max_length=20, choices=COURSE_CHOICES, null=True, blank=True)
 
     def __str__(self):
         return self.name

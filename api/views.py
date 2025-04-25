@@ -1,4 +1,5 @@
 from rest_framework import status
+from api.models import Category, Project
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -57,10 +58,39 @@ def create_category(request):
         }, status=status.HTTP_201_CREATED)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+@permission_classes([IsAdminUser])
+def update_category(request, id):
+    try:
+        category = Category.objects.get(id=id)
+    except Category.DoesNotExist:
+        return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = CategorySerializer(instance=category, data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH'])
+@permission_classes([IsAdminUser])
+def close_category(request, id):
+    try:
+        category = Category.objects.get(id=id)
+    except Category.DoesNotExist:
+        return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    category.finished = True
+    category.save()
+
+    return Response({"message": "Category closed successfully"}, status=status.HTTP_200_OK)
     
 @api_view(['POST'])
 @permission_classes([IsAdminUser]) 
-def create_project_with_members(request):
+def create_project(request):
     serializer = ProjectSerializer(data=request.data)
 
     if serializer.is_valid():
@@ -72,14 +102,21 @@ def create_project_with_members(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['PUT'])
+@permission_classes([IsAdminUser])
+def update_project(request, id):
+    try:
+        project = Project.objects.get(id=id)
+    except Project.DoesNotExist:
+        return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = ProjectSerializer(instance=project, data=request.data)
 
-
-
-
-
-
-
-
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
 
 
