@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.hashers import make_password, check_password
 
 # Create your models here.
 class Category(models.Model):
@@ -39,3 +40,17 @@ class Vote(models.Model):
     def __str__(self):
         return f"{self.voter} votou em {self.competitor} na categoria {self.category}"
     
+class Admin(models.Model):
+    name = models.CharField(max_length=180)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255)
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+        self.save()
+
+    def check_password(self, raw_password):
+        return check_password(raw_password, self.password)
+
+    def __str__(self):
+        return self.email
