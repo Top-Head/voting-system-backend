@@ -15,14 +15,14 @@ Criar um design intuitivo, responsivo e envolvente que transmita a temática esp
 ### 1. **Administrador**
 - Login com código secreto.
 - Criar e gerenciar categorias.
-- Adicionar e editar competidores.
+- Cadastrar e editar projetos.
 - Acompanhar votações em tempo real.
-- Definir data de encerramento da votação.
+- Definir quando uma categoria de voto está encerramento ou não.
 
 ### 2. **Votante**
 - Login com Google.
 - Visualiza as categorias disponíveis.
-- Escolhe um competidor por categoria.
+- Escolhe um projeto por categoria e um expositor de cada categoria.
 - Confirmação do voto (não pode ser alterado depois).
 
 ## 🎯 Estrutura de Telas
@@ -38,7 +38,6 @@ Criar um design intuitivo, responsivo e envolvente que transmita a temática esp
 - Adicionar competidores.
 - Visualizar votos por categoria e competidor.
 - Definir data de encerramento da votação.
-- 
 
 ### **3. Interface do Votante**
 - Listagem de categorias.
