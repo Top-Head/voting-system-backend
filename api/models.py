@@ -43,7 +43,8 @@ class Member(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
     classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
-    turma = models.CharField(max_length=2)  
+    turma = models.CharField(max_length=2)
+    profile_image = models.ImageField(upload_to='members/', default=False, null=False) 
     course = models.CharField(max_length=20, choices=COURSE_CHOICES, null=True, blank=True)
 
     def __str__(self):
@@ -62,10 +63,11 @@ class Vote(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True, blank=True)
+    vote_type = models.CharField(max_length=10, choices=[('project', 'Projeto'), ('expositor', 'Expositor')], default='project')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('voter', 'category')
+        unique_together = ('voter', 'category', 'vote_type')
 
     def __str__(self):
         return f"Voto de {self.voter} em projeto {self.project} ou expositor {self.member} na categoria {self.category}"

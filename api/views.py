@@ -3,11 +3,11 @@ from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework.response import Response
-from api.models import Category, Project, Voter
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny, IsAdminUser
-from api.serializers import ProjectSerializer, CategorySerializer
+from api.models import Category, Project, Voter, Vote, Member
+from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 
 # Create your views here.
 # ---------------------------------------------Admin-----------------------------------------------  
@@ -162,11 +162,16 @@ def get_category(request, id):
     serializer = CategorySerializer(category)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+def get_members(request):
+    members = Member.objects.all()
+    serializer = MemberSerializer(members, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 #---------------------------------------------Voter-------------------------------------------------
 @api_view(['POST'])
 @permission_classes([AllowAny])  
 def voter_login(request):
-    print("Recebido no backend:", request.data) 
 
     email = request.data.get('email')
     google_id = request.data.get('google_id')
@@ -190,3 +195,57 @@ def voter_login(request):
         "access": str(refresh.access_token),
         "email": voter.email
     }, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def vote_project(request):
+    voter = request.user
+    category_id = request.data.get("category")
+    project_id = request.data.get("project")
+
+    if not category_id or not project_id:
+        return Response({"error": "Category and Project are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if Vote.objects.filter(voter=voter, category_id=category_id, vote_type='project').exists():
+        return Response({"error": "You just voted in this category."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        project = Project.objects.get(id=project_id)
+    except Project.DoesNotExist:
+        return Response({"error": "Project not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    Vote.objects.create(
+        voter=voter,
+        category_id=category_id,
+        project=project,
+        vote_type='project'
+    )
+
+    return Response({"message": "Voted with sucess!"}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def vote_expositor(request):
+    voter = request.user
+    category_id = request.data.get("category")
+    member_id = request.data.get("member")
+
+    if not category_id or not member_id:
+        return Response({"error": "Category and members are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    if Vote.objects.filter(voter=voter, category_id=category_id, vote_type='expositor').exists():
+        return Response({"error": "You just voted a member"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        member = Member.objects.get(id=member_id)
+    except Member.DoesNotExist:
+        return Response({"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    Vote.objects.create(
+        voter=voter,
+        category_id=category_id,
+        member=member,
+        vote_type='expositor'
+    )
+
+    return Response({"message": "Voted with sucess."}, status=status.HTTP_201_CREATED)

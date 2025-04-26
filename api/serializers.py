@@ -18,7 +18,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['id', 'name', 'email', 'description', 'category', 'project_cover', 'members']
+        fields = ['id', 'name', 'description', 'category', 'project_cover', 'members']
 
     def create(self, validated_data):
         members_data = validated_data.pop('members')
