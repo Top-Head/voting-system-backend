@@ -265,7 +265,9 @@ class ProjectRankingView(APIView):
                 'project_id': project.id,
                 'name': project.name,
                 'description': project.description,
+                'category_name': category.name,
                 'votes': project.vote_count
+                
             })
 
         return Response(data)
@@ -287,7 +289,9 @@ class MemberRankingView(APIView):
             data.append({
                 'member_id': member.id,
                 'name': member.name,
+                'category_name': category.name,
                 'votes': member.vote_count
+
             })
 
         return Response(data)
