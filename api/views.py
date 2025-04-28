@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db.models import Count
 from api.models import Category, Project, Voter, Vote, Member
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
@@ -270,3 +271,48 @@ def vote_expositor(request):
     )
 
     return Response({"message": "Voted with sucess."}, status=status.HTTP_201_CREATED)
+
+class ProjectRankingView(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, category_id):
+
+        category = Category.objects.get(id=category_id)
+
+        projects = Project.objects.filter(category=category).annotate(vote_count=Count('vote')).order_by('-vote_count') 
+
+        data = []
+        for project in projects:
+            data.append({
+                'project_id': project.id,
+                'name': project.name,
+                'description': project.description,
+                'category_name': category.name,
+                'votes': project.vote_count
+                
+            })
+
+        return Response(data)
+
+
+class MemberRankingView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, category_id):
+
+        category = Category.objects.get(id=category_id)
+
+        projects = Project.objects.filter(category=category)
+
+        members = Member.objects.filter(project__in=projects).annotate(vote_count=Count('vote')).order_by('-vote_count')
+
+        data = []
+        for member in members:
+            data.append({
+                'member_id': member.id,
+                'name': member.name,
+                'category_name': category.name,
+                'votes': member.vote_count
+
+            })
+
+        return Response(data)
