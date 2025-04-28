@@ -35,3 +35,8 @@ class CategorySerializer(serializers.ModelSerializer):
             Project.objects.create(category=category, **project_data)
         return category
     
+
+class VoteSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Vote
+        fields = '__all__'

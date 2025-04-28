@@ -18,9 +18,7 @@ urlpatterns = [
     path('api/get-category/<int:id>', views.get_category, name='get_category'),
     path('api/get-projects', views.get_projects, name='get_projects'),
     path('api/get-project/<int:id>', views.get_project, name='get_project'),
-    path('api/get-members', views.get_members, name='get_members'),
     path('api/count-project', views.count_project, name='count_project'),
     path('api/count-category', views.count_category, name='count_category'),
-    path('api/vote-project', views.vote_project, name='vote_project'),
-    path('api/vote-expositor', views.vote_expositor, name='vote_expositor'),
+    path('api/get-votes', views.get_votes, name='get_votes'),
 ]
