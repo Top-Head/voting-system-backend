@@ -22,7 +22,7 @@ urlpatterns = [
     path('api/count-category', views.count_category, name='count_category'),
     path('api/vote-project', views.vote_project, name='vote_project'),
     path('api/vote-expositor', views.vote_expositor, name='vote_expositor'),
-    path('ranking/projects/<int:category_id>/', views.ProjectRankingView.as_view(), name='project-ranking'),
-    path('ranking/members/<int:category_id>/', views.MemberRankingView.as_view(), name='member-ranking'),
+    path('api/ranking/projects/<int:category_id>/', views.ProjectRankingView.as_view(), name='project-ranking'),
+    path('api/ranking/members/<int:category_id>/', views.MemberRankingView.as_view(), name='member-ranking'),
     path('api/get-votes', views.get_votes, name='get_votes'),
 ]
