@@ -1,10 +1,18 @@
 from django.db import models
 
 # Create your models here.
-class Category(models.Model):
+class Activity(models.Model):
     name = models.CharField(max_length=100)
+    description = models.TextField()
+    finished = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.name    
+    
+class Category(models.Model):
+    name = models.CharField(max_length=100, choices=[('Informática', 'Informática'), ('Eletrônica', 'Eletrônica'), ('Cantinho tecnológico', 'Cantinho tecnológico')])
     description = models.TextField(blank=True)
-    finished = models.BooleanField(default=False)  
+    activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='categories', default=None)
 
     def __str__(self):
         return self.name
@@ -13,7 +21,7 @@ class Project(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='projects')
-    project_cover = models.ImageField(upload_to='projects/', blank=True, null=True)
+    project_cover = models.ImageField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -44,7 +52,7 @@ class Member(models.Model):
     email = models.EmailField()
     classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
     turma = models.CharField(max_length=2)
-    profile_image = models.ImageField(upload_to='members/', default=False, null=False) 
+    profile_image = models.ImageField(default=False, null=False) 
     course = models.CharField(max_length=20, choices=COURSE_CHOICES, null=True, blank=True)
 
     def __str__(self):
@@ -60,6 +68,7 @@ class Voter(models.Model):
     
 class Vote(models.Model):
     voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True, blank=True)
@@ -67,7 +76,7 @@ class Vote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('voter', 'category', 'vote_type')
+        unique_together = ('voter', 'activity', 'category', 'vote_type')
 
     def __str__(self):
         return f"Voto de {self.voter} em projeto {self.project} ou expositor {self.member} na categoria {self.category}"
