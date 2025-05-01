@@ -6,7 +6,7 @@ urlpatterns = [
     path('api/admin/login', views.admin_login, name='admin_token'),
     path('api/admin/create-category', views.create_category, name='create_category'),
     path('api/admin/update-category/<int:id>', views.update_category, name='update_category'),
-    path('api/admin/close-category/<int:id>', views.close_category, name='close_category'),
+    path('api/admin/close-activity/<int:id>', views.close_activity, name='close_category'),
     path('api/admin/create-project', views.create_project, name='create_project'),
     path('api/admin/update-project/<int:id>', views.update_project, name='update_project'),
 #---------------------------------------------Voter-------------------------------------------------
@@ -25,4 +25,9 @@ urlpatterns = [
     path('api/ranking/projects/<int:category_id>/', views.ProjectRankingView.as_view(), name='project-ranking'),
     path('api/ranking/members/<int:category_id>/', views.MemberRankingView.as_view(), name='member-ranking'),
     path('api/get-votes', views.get_votes, name='get_votes'),
+    path('api/create-activity', views.create_activity, name='create_activity'),
+    path('api/get-activities', views.get_activities, name='get_activities'),
+    path('api/get-activity/<int:id>', views.get_activity, name='get_activity'),
+    path('api/update-activity/<int:id>', views.update_activity, name='update_activity'),
+    path('api/cretae-member', views.create_member, name='create_member'),
 ]
