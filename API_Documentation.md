@@ -1,4 +1,4 @@
-# API Documentation
+# Vonting System - API Documentation
 
 ## Endpoints
 
@@ -70,7 +70,7 @@
 
 #### 4. Close Category
 - **URL**: `/api/admin/close-category/<int:id>`
-- **Method**: DELETE
+- **Method**: PATCH
 - **Description**: Close a category by ID.
 - **Response**:
   ```json
@@ -183,8 +183,9 @@
     "message": "Voted with sucess."
   }
   ```
+### Retrive endpoints
 
-#### 4. Get Members
+#### 1. Get Members
 - **URL**: `/api/get-members`
 - **Method**: GET
 - **Description**: Retrieve a list of members.
@@ -204,7 +205,7 @@
   ]
   ```
 
-#### 5. Get Categories
+#### 2. Get Categories
 - **URL**: `/api/get-categorys`
 - **Method**: GET
 - **Description**: Retrieve a list of categories.
@@ -224,7 +225,7 @@
   ]
   ```
 
-#### 6. Get Category by ID
+#### 3. Get Category by ID
 - **URL**: `/api/get-category/<int:id>`
 - **Method**: GET
 - **Description**: Retrieve details of a specific category by ID.
@@ -237,7 +238,7 @@
   }
   ```
 
-#### 7. Get Projects
+#### 4. Get Projects
 - **URL**: `/api/get-projects`
 - **Method**: GET
 - **Description**: Retrieve a list of projects.
@@ -259,7 +260,7 @@
   ]
   ```
 
-#### 8. Get Project by ID
+#### 5. Get Project by ID
 - **URL**: `/api/get-project/<int:id>`
 - **Method**: GET
 - **Description**: Retrieve details of a specific project by ID.
@@ -273,7 +274,7 @@
   }
   ```
 
-#### 9. Count Projects
+#### 6. Count Projects
 - **URL**: `/api/count-project`
 - **Method**: GET
 - **Description**: Retrieve the total count of projects.
@@ -284,7 +285,7 @@
   }
   ```
 
-#### 10. Count Categories
+#### 7. Count Categories
 - **URL**: `/api/count-category`
 - **Method**: GET
 - **Description**: Retrieve the total count of categories.
@@ -295,7 +296,7 @@
   }
   ```
 
-#### 11. Get Votes
+#### 8. Get Votes
 - **URL**: `/api/get-votes`
 - **Method**: GET
 - **Description**: Retrieve all votes
@@ -310,3 +311,32 @@
     "project": 1,
     "member": null
   }
+  ```
+
+### 9. Get Project Ranking
+- **URL**: `/api/ranking/projects/<int:id>`
+- **Method**: GET
+- **Description**: Retrive the project ranking by desc considering the number of votes
+- **Response**:
+  ```json
+  {
+    "project_id": 1,
+    "name": "Name 1",
+    "description": "Description 1",
+    "category": "Category 1",
+    "votes": 3
+  }
+  ```
+### 10. Get Members Ranking
+- **URL**: `/api/ranking/members/<int:id>`
+- **Method**: GET
+- **Description**: Retrive the members ranking by desc considering the number of votes
+- **Response**:
+  ```json
+  {
+    "members_id": 5,
+    "name": "Name 2",
+    "category_name": "Category 1",
+    "votes": 3
+  }
+  ```
