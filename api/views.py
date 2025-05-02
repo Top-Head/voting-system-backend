@@ -1,14 +1,15 @@
 from rest_framework import status
+from django.db.models import Count
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.db.models import Count
-from api.models import Category, Project, Voter, Vote, Member
 from rest_framework.decorators import api_view, permission_classes
+from api.models import Category, Project, Voter, Vote, Member, Activity
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
-from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer, VoteSerializers
+from api.services.cloudinary import upload_to_cloudinary_members, upload_to_cloudinary_projects
+from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer, VoteSerializer, ActivitySerializer
 
 # Create your views here.
 # ---------------------------------------------Admin-----------------------------------------------  
@@ -48,6 +49,36 @@ def admin_login(request):
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
+def create_activity(request):
+    serializer = ActivitySerializer(data=request.data)
+
+    if serializer.is_valid():
+        activity = serializer.save()
+        return Response({
+            "message": "Atividade criada com sucesso!",
+            "activity": ActivitySerializer(activity).data
+        }, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+@permission_classes([IsAdminUser])
+def update_activity(request, id):
+    try:
+        activity = Activity.objects.get(id=id)
+    except Activity.DoesNotExist:
+        return Response({"error": "Activity not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = ActivitySerializer(instance=activity, data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
 def create_category(request):
     serializer = CategorySerializer(data=request.data)
     
@@ -78,16 +109,16 @@ def update_category(request, id):
 
 @api_view(['PATCH'])
 @permission_classes([IsAdminUser])
-def close_category(request, id):
+def close_activity(request, id):
     try:
-        category = Category.objects.get(id=id)
-    except Category.DoesNotExist:
-        return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+        activity = Activity.objects.get(id=id)
+    except Activity.DoesNotExist:
+        return Response({"error": "Activity not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    category.finished = True
-    category.save()
+    activity.finished = True
+    activity.save()
 
-    return Response({"message": "Category closed successfully"}, status=status.HTTP_200_OK)
+    return Response({"message": "Activity closed successfully"}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser]) 
@@ -119,7 +150,20 @@ def update_project(request, id):
     
     return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
-#------------------------------------------------------------------------------------------------------
+@api_view(['POST'])
+def create_member(request):
+    serializer = MemberSerializer(data=request.data)
+
+    if serializer.is_valid():
+        member = serializer.save()
+        return Response({
+            "message": "Membro criado com sucesso!",
+            "member": MemberSerializer(member).data
+        }, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#----------------------------------------------GET--------------------------------------------------------
 
 @api_view(['GET'])
 def count_project(request):
@@ -172,7 +216,23 @@ def get_members(request):
 @api_view(['GET'])
 def get_votes(request):
     votes = Vote.objects.all()
-    serializer = VoteSerializers(votes, many=True)
+    serializer = VoteSerializer(votes, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_activities(request):
+    activitys = Activity.objects.all()
+    serializer = ActivitySerializer(activitys, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_activity(request, id):
+    try:
+        activity = Activity.objects.get(id=id)
+    except Activity.DoesNotExist:
+        return Response({"error": "Activity not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = ActivitySerializer(activity)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 #---------------------------------------------Voter-------------------------------------------------
