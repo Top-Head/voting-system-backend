@@ -3,7 +3,7 @@ from api import views
 
 urlpatterns = [
 # ---------------------------------------------Admin-----------------------------------------------
-    path('api/admin/login', views.admin_login, name='admin_token'),
+    path('category-autocomplete/', views.CategoryAutocomplete.as_view(), name='category-autocomplete'),
     path('api/admin/create-category', views.create_category, name='create_category'),
     path('api/admin/update-category/<int:id>', views.update_category, name='update_category'),
     path('api/admin/close-activity/<int:id>', views.close_activity, name='close_category'),
