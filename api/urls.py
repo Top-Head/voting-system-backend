@@ -3,7 +3,7 @@ from api import views
 
 urlpatterns = [
 # ---------------------------------------------Admin-----------------------------------------------
-    path('api/admin/login', views.admin_login, name='admin_token'),
+    path('category-autocomplete/', views.CategoryAutocomplete.as_view(), name='category-autocomplete'),
     path('api/admin/create-category', views.create_category, name='create_category'),
     path('api/admin/update-category/<int:id>', views.update_category, name='update_category'),
     path('api/admin/close-activity/<int:id>', views.close_activity, name='close_category'),
@@ -30,4 +30,6 @@ urlpatterns = [
     path('api/get-activity/<int:id>', views.get_activity, name='get_activity'),
     path('api/update-activity/<int:id>', views.update_activity, name='update_activity'),
     path('api/cretae-member', views.create_member, name='create_member'),
+    path('api/count-projct-by-category', views.count_project_in_category, name='count_project_by_category'),
+    path('api/register-voter', views.register_voter, name='register_voter')
 ]

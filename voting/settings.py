@@ -29,7 +29,9 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["voting-system-backend-zw80.onrender.com", "*"]
+
+ALLOWED_HOSTS = ['*']
+
 
 # Application definition
 
@@ -43,7 +45,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
-    'api'
+    'api',
+    "dal",
+    "dal_select2",
 ]
 
 SIMPLE_JWT = {
