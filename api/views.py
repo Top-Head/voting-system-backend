@@ -10,6 +10,7 @@ from api.models import Category, Project, Voter, Vote, Member, Activity
 from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer, VoteSerializer, ActivitySerializer, VoterSerializer
 from django.contrib.auth.hashers import make_password, check_password
 
+
 # Create your views here.
 # ---------------------------------------------Admin-----------------------------------------------  
 
