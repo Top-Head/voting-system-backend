@@ -1,54 +1,34 @@
+from dal import autocomplete
 from rest_framework import status
 from django.db.models import Count
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
 from api.models import Category, Project, Voter, Vote, Member, Activity
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
-from api.services.cloudinary import upload_to_cloudinary_members, upload_to_cloudinary_projects
-from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer, VoteSerializer, ActivitySerializer
+from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer, VoteSerializer, ActivitySerializer, VoterSerializer
+from django.contrib.auth.hashers import make_password, check_password
+
 
 # Create your views here.
 # ---------------------------------------------Admin-----------------------------------------------  
 
-ADMIN_CODE = 'CODE'
+class CategoryAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = Category.objects.all()
+
+        activity_id = self.forwarded.get('activity', None)
+        if activity_id:
+            qs = qs.filter(activity_id=activity_id)
+
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+
+        return qs
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
-def admin_login(request):
-    email = request.data.get("email")
-    password = request.data.get("password")
-    secret_code = request.data.get("secret_code")
-
-    if secret_code != ADMIN_CODE:
-        return Response({"error": "Invalid secret code"}, status=status.HTTP_401_UNAUTHORIZED)
-
-    try:
-        user = User.objects.get(email=email)
-    except User.DoesNotExist:
-        return Response({"error": "Invalid email"}, status=status.HTTP_404_NOT_FOUND)
-
-    user = authenticate(request, username=user.username, password=password)
-    if user is None:
-        return Response({"error": "Invalid password"}, status=status.HTTP_401_UNAUTHORIZED)
-
-    if not user.is_superuser:
-        return Response({"error": "Not a superuser"}, status=status.HTTP_403_FORBIDDEN)
-
-    refresh = RefreshToken.for_user(user)
-
-    return Response({
-        "refresh": str(refresh),
-        "access": str(refresh.access_token),
-        "email": user.email
-    }, status=status.HTTP_200_OK)
-
-@api_view(['POST'])
-@permission_classes([IsAdminUser])
 def create_activity(request):
     serializer = ActivitySerializer(data=request.data)
 
@@ -62,7 +42,6 @@ def create_activity(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
-@permission_classes([IsAdminUser])
 def update_activity(request, id):
     try:
         activity = Activity.objects.get(id=id)
@@ -78,7 +57,6 @@ def update_activity(request, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-@permission_classes([IsAdminUser])
 def create_category(request):
     serializer = CategorySerializer(data=request.data)
     
@@ -92,7 +70,6 @@ def create_category(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
-@permission_classes([IsAdminUser])
 def update_category(request, id):
     try:
         category = Category.objects.get(id=id)
@@ -108,7 +85,6 @@ def update_category(request, id):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PATCH'])
-@permission_classes([IsAdminUser])
 def close_activity(request, id):
     try:
         activity = Activity.objects.get(id=id)
@@ -121,7 +97,6 @@ def close_activity(request, id):
     return Response({"message": "Activity closed successfully"}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-@permission_classes([IsAdminUser]) 
 def create_project(request):
     serializer = ProjectSerializer(data=request.data)
 
@@ -135,7 +110,6 @@ def create_project(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
-@permission_classes([IsAdminUser])
 def update_project(request, id):
     try:
         project = Project.objects.get(id=id)
@@ -169,6 +143,17 @@ def create_member(request):
 def count_project(request):
     project_count = Project.objects.count()
     return Response({"total": project_count}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def count_project_in_category(request, activity_id):
+    try:
+        activity = Activity.objects.get(id=activity_id)
+    except Activity.DoesNotExist:
+        return Response({"error": "Activity does not exist"})
+    
+    category_count = Category.objects.filter(activity_id=activity).annotate(project_count=Count('projects'))
+    
+    return Response({"Total": category_count}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_projects(request):
@@ -236,27 +221,23 @@ def get_activity(request, id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 #---------------------------------------------Voter-------------------------------------------------
-@api_view(['POST'])
-@permission_classes([AllowAny])  
+@api_view(['POST'])  
 def voter_login(request):
-
     email = request.data.get('email')
-    google_id = request.data.get('google_id')
+    password = request.data.get('password')
 
-    if not email or not google_id:
-        return Response({"error": "Email and Google ID required"}, status=status.HTTP_400_BAD_REQUEST)
+    if not email or not password:
+        return Response({"error": "Email and password required"}, status=status.HTTP_400_BAD_REQUEST)
 
-    voter, created = Voter.objects.get_or_create(
-        google_id=google_id,
-        defaults={"email": email}
-    )
+    try:
+        voter = Voter.objects.get(email=email)
+    except Voter.DoesNotExist:
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
-    if not created and voter.email != email:
-        voter.email = email
-        voter.save()
+    if not check_password(password, voter.password):
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
     refresh = RefreshToken.for_user(voter)
-
     return Response({
         "refresh": str(refresh),
         "access": str(refresh.access_token),
@@ -264,76 +245,90 @@ def voter_login(request):
     }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-def vote_project(request):
-    voter_id = request.data.get("voter")
-    if not voter_id:
-        return Response({"error": "Voter ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-    
-    try:
-        voter = Voter.objects.get(id=voter_id)
-    except Voter.DoesNotExist:
-        return Response({"error": "Voter not found."}, status=status.HTTP_404_NOT_FOUND)
+def register_voter(request):
+    data = request.data.copy()
+    if not data.get('email') or not data.get('password') or not data.get('name'):
+        return Response({"error": "Name, email and password required"}, status=status.HTTP_400_BAD_REQUEST)
 
+    if Voter.objects.filter(email=data['email']).exists():
+        return Response({"error": "Email already registered"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Criptografar a senha antes de salvar
+    data['password'] = make_password(data['password'])
+    serializer = VoterSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Voter registered successfully!",
+            "voter": serializer.data
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from rest_framework.permissions import IsAuthenticated
+
+@api_view(['POST'])
+def vote_project(request):
+    voter = request.user  
     category_id = request.data.get("category")
     project_id = request.data.get("project")
 
     if not category_id or not project_id:
         return Response({"error": "Category and Project are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-    if Vote.objects.filter(voter=voter, category_id=category_id, vote_type='project').exists():
-        return Response({"error": "You just voted in this category."}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        category = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        return Response({"error": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
 
     try:
-        project = Project.objects.get(id=project_id)
+        project = Project.objects.get(id=project_id, category=category)
     except Project.DoesNotExist:
-        return Response({"error": "Project not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "Project not found in this category."}, status=status.HTTP_404_NOT_FOUND)
+
+    if Vote.objects.filter(voter=voter, category=category, vote_type='project').exists():
+        return Response({"error": "You have already voted in this category."}, status=status.HTTP_400_BAD_REQUEST)
 
     Vote.objects.create(
-        voter=voter,  
-        category_id=category_id,
+        voter=voter,
+        category=category,
         project=project,
         vote_type='project'
     )
 
     return Response({"message": "Voted with success!"}, status=status.HTTP_201_CREATED)
 
-
 @api_view(['POST'])
 def vote_expositor(request):
-    voter_id = request.data.get("voter")
-    if not voter_id:
-        return Response({"error": "Voter ID is required."}, status=status.HTTP_400_BAD_REQUEST)
-    
-    try:
-        voter = Voter.objects.get(id=voter_id)
-    except Voter.DoesNotExist:
-        return Response({"error": "Voter not found."}, status=status.HTTP_404_NOT_FOUND)
-    
+    voter = request.user
     category_id = request.data.get("category")
     member_id = request.data.get("member")
 
     if not category_id or not member_id:
-        return Response({"error": "Category and members are required."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Category and member are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-    if Vote.objects.filter(voter=voter, category_id=category_id, vote_type='expositor').exists():
-        return Response({"error": "You just voted a member"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        category = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        return Response({"error": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
 
     try:
         member = Member.objects.get(id=member_id)
     except Member.DoesNotExist:
         return Response({"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND)
 
+    if Vote.objects.filter(voter=voter, category=category, vote_type='expositor').exists():
+        return Response({"error": "You have already voted a member in this category."}, status=status.HTTP_400_BAD_REQUEST)
+
     Vote.objects.create(
         voter=voter,
-        category_id=category_id,
+        category=category,
         member=member,
         vote_type='expositor'
     )
 
-    return Response({"message": "Voted with sucess."}, status=status.HTTP_201_CREATED)
+    return Response({"message": "Voted with success."}, status=status.HTTP_201_CREATED)
 
 class ProjectRankingView(APIView):
-    permission_classes = [AllowAny]
     def get(self, request, category_id):
 
         category = Category.objects.get(id=category_id)
@@ -355,8 +350,6 @@ class ProjectRankingView(APIView):
 
 
 class MemberRankingView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request, category_id):
 
         category = Category.objects.get(id=category_id)

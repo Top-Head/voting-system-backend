@@ -12,8 +12,7 @@
   ```json
   {
     "email": "admin@example.com",
-    "password": "password123",
-    "secret_code": "CODE"
+    "password": "password123"
   }
   ```
 - **Response**:
@@ -25,10 +24,66 @@
   }
   ```
 
-#### 2. Create Category
+#### 2. Create Activity
+- **URL**: `/api/create-activity`
+- **Method**: POST
+- **Description**: Create a new activity (admin only).
+- **Request Body**:
+  ```json
+  {
+    "name": "Activity Name",
+    "description": "Activity description"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "Atividade criada com sucesso!",
+    "activity": {
+      "id": 1,
+      "name": "Activity Name",
+      "description": "Activity description",
+      "categories": []
+    }
+  }
+  ```
+
+#### 3. Update Activity
+- **URL**: `/api/update-activity/<int:id>`
+- **Method**: PUT
+- **Description**: Update an existing activity by ID (admin only).
+- **Request Body**:
+  ```json
+  {
+    "name": "Updated Activity",
+    "description": "Updated description"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "id": 1,
+    "name": "Updated Activity",
+    "description": "Updated description",
+    "categories": []
+  }
+  ```
+
+#### 4. Close Activity
+- **URL**: `/api/admin/close-activity/<int:id>`
+- **Method**: PATCH
+- **Description**: Close an activity by ID (admin only).
+- **Response**:
+  ```json
+  {
+    "message": "Activity closed successfully"
+  }
+  ```
+
+#### 5. Create Category
 - **URL**: `/api/admin/create-category`
 - **Method**: POST
-- **Description**: Create a new category.
+- **Description**: Create a new category (admin only).
 - **Request Body**:
   ```json
   {
@@ -43,15 +98,16 @@
     "category": {
       "id": 1,
       "name": "New Category",
-      "description": "Description of the category"
+      "description": "Description of the category",
+      "projects": []
     }
   }
   ```
 
-#### 3. Update Category
+#### 6. Update Category
 - **URL**: `/api/admin/update-category/<int:id>`
 - **Method**: PUT
-- **Description**: Update an existing category by ID.
+- **Description**: Update an existing category by ID (admin only).
 - **Request Body**:
   ```json
   {
@@ -64,31 +120,26 @@
   {
     "id": 1,
     "name": "Updated Category",
-    "description": "Updated description"
+    "description": "Updated description",
+    "projects": []
   }
   ```
 
-#### 4. Close Category
-- **URL**: `/api/admin/close-category/<int:id>`
-- **Method**: PATCH
-- **Description**: Close a category by ID.
-- **Response**:
-  ```json
-  {
-    "message": "Category closed successfully"
-  }
-  ```
 
-#### 5. Create Project
+#### 7. Create Project
 - **URL**: `/api/admin/create-project`
 - **Method**: POST
-- **Description**: Create a new project.
+- **Description**: Create a new project (admin only).
 - **Request Body**:
   ```json
   {
     "name": "New Project",
     "description": "Project description",
-    "category_id": 1
+    "category": 1,
+    "project_cover": "url_to_image",
+    "members": [
+      {"name": "Member 1", "email": "member1@example.com"}
+    ]
   }
   ```
 - **Response**:
@@ -99,20 +150,29 @@
       "id": 1,
       "name": "New Project",
       "description": "Project description",
-      "category_id": 1
+      "category": 1,
+      "project_cover": "url_to_image",
+      "members": [
+        {"id": 1, "name": "Member 1", "email": "member1@example.com"}
+      ]
     }
   }
   ```
 
-#### 6. Update Project
+#### 8. Update Project
 - **URL**: `/api/admin/update-project/<int:id>`
 - **Method**: PUT
-- **Description**: Update an existing project by ID.
+- **Description**: Update an existing project by ID (admin only).
 - **Request Body**:
   ```json
   {
     "name": "Updated Project",
-    "description": "Updated description"
+    "description": "Updated description",
+    "category": 1,
+    "project_cover": "url_to_image",
+    "members": [
+      {"name": "Member 1", "email": "member1@example.com"}
+    ]
   }
   ```
 - **Response**:
@@ -120,9 +180,52 @@
   {
     "id": 1,
     "name": "Updated Project",
-    "description": "Updated description"
+    "description": "Updated description",
+    "category": 1,
+    "project_cover": "url_to_image",
+    "members": [
+      {"id": 1, "name": "Member 1", "email": "member1@example.com"}
+    ]
   }
   ```
+
+#### 9. Create Member
+- **URL**: `/api/cretae-member`
+- **Method**: POST
+- **Description**: Create a new member.
+- **Request Body**:
+  ```json
+  {
+    "name": "Member Name",
+    "email": "member@example.com",
+    "classe": "Class 1",
+    "turma": "IB",
+    "profile_image": "url_to_image",
+    "course": "Informatica"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "Membro criado com sucesso!",
+    "member": {
+      "id": 1,
+      "name": "Member Name",
+      "email": "member@example.com",
+      "classe": "Class 1",
+      "turma": "IB",
+      "profile_image": "url_to_image",
+      "course": "Informatica"
+    }
+  }
+  ```
+
+#### 10. Category Autocomplete
+- **URL**: `/category-autocomplete/`
+- **Method**: GET
+- **Description**: Autocomplete for categories (admin, used in forms).
+- **Query Params**: `activity` (optional), `q` (search string)
+- **Response**: Lista de categorias filtradas.
 
 ### Voter Endpoints
 
@@ -153,7 +256,7 @@
 - **Request Body**:
   ```json
   {
-    "voter_id": 2,
+    "voter": 2,
     "category": 1,
     "project": 1
   }
@@ -161,7 +264,7 @@
 - **Response**:
   ```json
   {
-    "message": "Voted with sucess!"
+    "message": "Voted with success!"
   }
   ```
 
@@ -172,7 +275,7 @@
 - **Request Body**:
   ```json
   {
-    "voter_id": 1,
+    "voter": 1,
     "category": 1,
     "member": 1
   }
@@ -183,8 +286,7 @@
     "message": "Voted with sucess."
   }
   ```
-### Retrive endpoints
-
+### Retrieve Endpoints
 #### 1. Get Members
 - **URL**: `/api/get-members`
 - **Method**: GET
@@ -195,12 +297,11 @@
     {
       "id": 1,
       "name": "Member 1",
-      "profile_image": "url_to_image"
-    },
-    {
-      "id": 2,
-      "name": "Member 2",
-      "profile_image": "url_to_image"
+      "email": "example@gmail.com",
+      "classe": "Class 1",
+      "turma": "IB",
+      "profile_image": "url_to_image",
+      "course": "Informatica"
     }
   ]
   ```
@@ -215,12 +316,8 @@
     {
       "id": 1,
       "name": "Category 1",
-      "description": "Description 1"
-    },
-    {
-      "id": 2,
-      "name": "Category 2",
-      "description": "Description 2"
+      "description": "Description 1",
+      "projects": []
     }
   ]
   ```
@@ -234,7 +331,8 @@
   {
     "id": 1,
     "name": "Category 1",
-    "description": "Description 1"
+    "description": "Description 1",
+    "projects": []
   }
   ```
 
@@ -249,13 +347,9 @@
       "id": 1,
       "name": "Project 1",
       "description": "Description 1",
-      "category_id": 1
-    },
-    {
-      "id": 2,
-      "name": "Project 2",
-      "description": "Description 2",
-      "category_id": 2
+      "category": 1,
+      "project_cover": "url_to_image",
+      "members": []
     }
   ]
   ```
@@ -270,7 +364,9 @@
     "id": 1,
     "name": "Project 1",
     "description": "Description 1",
-    "category_id": 1
+    "category": 1,
+    "project_cover": "url_to_image",
+    "members": []
   }
   ```
 
@@ -299,44 +395,83 @@
 #### 8. Get Votes
 - **URL**: `/api/get-votes`
 - **Method**: GET
-- **Description**: Retrieve all votes
+- **Description**: Retrieve all votes.
+- **Response**:
+  ```json
+  [
+    {
+      "id": 1,
+      "vote_type": "project",
+      "created_at": "2025-04-27T23:06:32.907631Z",
+      "voter": 1,
+      "category": 1,
+      "project": 1,
+      "member": null
+    }
+  ]
+  ```
+
+#### 9. Get Activities
+- **URL**: `/api/get-activities`
+- **Method**: GET
+- **Description**: Retrieve all activities.
+- **Response**:
+  ```json
+  [
+    {
+      "id": 1,
+      "name": "Activity 1",
+      "description": "Description 1",
+      "categories": []
+    }
+  ]
+  ```
+
+#### 10. Get Activity by ID
+- **URL**: `/api/get-activity/<int:id>`
+- **Method**: GET
+- **Description**: Retrieve details of a specific activity by ID.
 - **Response**:
   ```json
   {
     "id": 1,
-    "vote_type": "project",
-    "created_at": "2025-04-27T23:06:32.907631Z",
-    "voter": 1,
-    "category": 1,
-    "project": 1,
-    "member": null
+    "name": "Activity 1",
+    "description": "Description 1",
+    "categories": []
   }
   ```
 
-### 9. Get Project Ranking
-- **URL**: `/api/ranking/projects/<int:id>`
+### Ranking Endpoints
+
+#### 1. Get Project Ranking
+- **URL**: `/api/ranking/projects/<int:category_id>/`
 - **Method**: GET
-- **Description**: Retrive the project ranking by desc considering the number of votes
+- **Description**: Retrieve the project ranking by number of votes (descending) for a category.
 - **Response**:
   ```json
-  {
-    "project_id": 1,
-    "name": "Name 1",
-    "description": "Description 1",
-    "category": "Category 1",
-    "votes": 3
-  }
+  [
+    {
+      "project_id": 1,
+      "name": "Project 1",
+      "description": "Description 1",
+      "category": "Category 1",
+      "votes": 3
+    }
+  ]
   ```
-### 10. Get Members Ranking
-- **URL**: `/api/ranking/members/<int:id>`
+
+#### 2. Get Members Ranking
+- **URL**: `/api/ranking/members/<int:category_id>/`
 - **Method**: GET
-- **Description**: Retrive the members ranking by desc considering the number of votes
+- **Description**: Retrieve the members ranking by number of votes (descending) for a category.
 - **Response**:
   ```json
-  {
-    "members_id": 5,
-    "name": "Name 2",
-    "category_name": "Category 1",
-    "votes": 3
-  }
+  [
+    {
+      "member_id": 5,
+      "name": "Name 2",
+      "category_name": "Category 1",
+      "votes": 3
+    }
+  ]
   ```
