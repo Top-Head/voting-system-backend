@@ -10,8 +10,7 @@ class Activity(models.Model):
         return self.name    
     
 class Category(models.Model):
-    name = models.CharField(max_length=100, choices=[('Informática', 'Informática'), ('Eletrônica', 'Eletrônica'), ('Cantinho tecnológico', 'Cantinho tecnológico')])
-    description = models.TextField(blank=True)
+    name = models.CharField(max_length=100)
     activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='categories', default=None)
 
     def __str__(self):
@@ -61,8 +60,9 @@ class Member(models.Model):
 
 
 class Voter(models.Model):
-    google_id = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255, default=None)
     email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255, default=None)
 
     def __str__(self):
         return self.email
