@@ -3,6 +3,7 @@ import cloudinary
 from dotenv import load_dotenv
 from cloudinary import uploader
 
+
 load_dotenv()
 
 cloudinary.config(

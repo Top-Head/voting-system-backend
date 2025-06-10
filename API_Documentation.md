@@ -125,6 +125,7 @@
   }
   ```
 
+
 #### 7. Create Project
 - **URL**: `/api/admin/create-project`
 - **Method**: POST
@@ -285,9 +286,7 @@
     "message": "Voted with sucess."
   }
   ```
-
 ### Retrieve Endpoints
-
 #### 1. Get Members
 - **URL**: `/api/get-members`
 - **Method**: GET

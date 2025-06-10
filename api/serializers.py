@@ -15,8 +15,12 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         members_data = validated_data.pop('members')
+        if 'project_cover' in validated_data:
+            validated_data['project_cover'] = upload_to_cloudinary_projects(validated_data['project_cover'])
         project = Project.objects.create(**validated_data)
         for member_data in members_data:
+            if 'profile_image' in member_data:
+                member_data['profile_image'] = upload_to_cloudinary_members(member_data['profile_image'])
             Member.objects.create(project=project, **member_data)
         return project
 
@@ -32,6 +36,7 @@ class CategorySerializer(serializers.ModelSerializer):
         for project_data in projects_data:
             Project.objects.create(category=category, **project_data)
         return category 
+
 
 class ActivitySerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)
