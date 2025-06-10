@@ -7,3 +7,4 @@ cloudinary
 gunicorn
 django-autocomplete-light
 dotenv
+pillow
