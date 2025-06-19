@@ -8,19 +8,14 @@ class MemberSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     members = MemberSerializer(many=True)
-
     class Meta:
         model = Project
         fields = ['id', 'name', 'description', 'category', 'project_cover', 'members']
 
     def create(self, validated_data):
         members_data = validated_data.pop('members')
-        if 'project_cover' in validated_data:
-            validated_data['project_cover'] = upload_to_cloudinary_projects(validated_data['project_cover'])
         project = Project.objects.create(**validated_data)
         for member_data in members_data:
-            if 'profile_image' in member_data:
-                member_data['profile_image'] = upload_to_cloudinary_members(member_data['profile_image'])
             Member.objects.create(project=project, **member_data)
         return project
 
@@ -28,7 +23,7 @@ class CategorySerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(many=True, read_only=True)
     class Meta:
         model = Category
-        fields = ['id', 'name', 'description', 'projects']
+        fields = ['id', 'name', 'projects']
 
     def create(self, validated_data):
         projects_data = validated_data.pop('projects')
@@ -39,8 +34,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ActivitySerializer(serializers.ModelSerializer):
-    categories = CategorySerializer(many=True, read_only=True)
-
+    categories = CategorySerializer(many=True)
     class Meta:
         model = Activity
         fields = ['id', 'name', 'description', 'categories']

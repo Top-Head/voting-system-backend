@@ -4,26 +4,6 @@
 
 ### Admin Endpoints
 
-#### 1. Admin Login
-- **URL**: `/api/admin/login`
-- **Method**: POST
-- **Description**: Authenticate an admin user and retrieve a token.
-- **Request Body**:
-  ```json
-  {
-    "email": "admin@example.com",
-    "password": "password123"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "refresh": "<refresh_token>",
-    "access": "<access_token>",
-    "email": "admin@example.com"
-  }
-  ```
-
 #### 2. Create Activity
 - **URL**: `/api/create-activity`
 - **Method**: POST
@@ -186,40 +166,8 @@
     "members": [
       {"id": 1, "name": "Member 1", "email": "member1@example.com"}
     ]
-  }
-  ```
-
-#### 9. Create Member
-- **URL**: `/api/cretae-member`
-- **Method**: POST
-- **Description**: Create a new member.
-- **Request Body**:
-  ```json
-  {
-    "name": "Member Name",
-    "email": "member@example.com",
-    "classe": "Class 1",
-    "turma": "IB",
-    "profile_image": "url_to_image",
-    "course": "Informatica"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "message": "Membro criado com sucesso!",
-    "member": {
-      "id": 1,
-      "name": "Member Name",
-      "email": "member@example.com",
-      "classe": "Class 1",
-      "turma": "IB",
-      "profile_image": "url_to_image",
-      "course": "Informatica"
-    }
-  }
-  ```
-
+    }```
+    
 #### 10. Category Autocomplete
 - **URL**: `/category-autocomplete/`
 - **Method**: GET
@@ -229,7 +177,20 @@
 
 ### Voter Endpoints
 
-#### 1. Voter Login
+### 3. Voter Register
+- **URL**: `/api/register-voter`
+- **Method**: POST
+- **Description**: Register a voter to the app
+- **Request Body**:
+  ```json
+  {
+    "name": "omar",
+    "email": "voter@example.com",
+    "password": "1kasm"
+  }
+  ```
+
+### 2. Voter Login
 - **URL**: `/api/login`
 - **Method**: POST
 - **Description**: Authenticate a voter and retrieve a token.
@@ -237,7 +198,7 @@
   ```json
   {
     "email": "voter@example.com",
-    "google_id": "google123"
+    "password": "google123"
   }
   ```
 - **Response**:
