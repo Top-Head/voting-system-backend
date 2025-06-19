@@ -72,19 +72,16 @@ def close_activity(request, id):
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
 def create_project(request):
-    # Extrai os dados do corpo da requisição
     members_json = request.data.get('members')
 
     if members_json:
         try:
-            # Transforma a string JSON num dicionário Python
             members_data = json.loads(members_json)
         except json.JSONDecodeError:
             return Response({"error": "Erro ao decodificar membros"}, status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({"members": ["This field is required."]}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Monta o dicionário final com todos os dados
     data = {
         "name": request.data.get("name"),
         "description": request.data.get("description"),

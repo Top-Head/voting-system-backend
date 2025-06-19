@@ -166,40 +166,8 @@
     "members": [
       {"id": 1, "name": "Member 1", "email": "member1@example.com"}
     ]
-  }
-  ```
-
-#### 9. Create Member
-- **URL**: `/api/cretae-member`
-- **Method**: POST
-- **Description**: Create a new member.
-- **Request Body**:
-  ```json
-  {
-    "name": "Member Name",
-    "email": "member@example.com",
-    "classe": "Class 1",
-    "turma": "IB",
-    "profile_image": "url_to_image",
-    "course": "Informatica"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "message": "Membro criado com sucesso!",
-    "member": {
-      "id": 1,
-      "name": "Member Name",
-      "email": "member@example.com",
-      "classe": "Class 1",
-      "turma": "IB",
-      "profile_image": "url_to_image",
-      "course": "Informatica"
-    }
-  }
-  ```
-
+    }```
+    
 #### 10. Category Autocomplete
 - **URL**: `/category-autocomplete/`
 - **Method**: GET
