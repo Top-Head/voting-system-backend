@@ -21,7 +21,7 @@ class Project(models.Model):
     description = models.TextField()
     activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='projects', null=True, blank=True)
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='projects')
-    project_cover = models.ImageField(blank=True, null=True)
+    project_cover = models.ImageField(blank=True, null=True, upload_to='project_covers/')
 
     def __str__(self):
         return self.name
@@ -52,7 +52,7 @@ class Member(models.Model):
     email = models.EmailField()
     classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
     turma = models.CharField(max_length=2)
-    profile_image = models.ImageField(blank=True, null=True)
+    profile_image = models.ImageField(blank=True, null=True, upload_to='member_profiles/')
     course = models.CharField(max_length=20, choices=COURSE_CHOICES, null=True, blank=True)
 
     def __str__(self):
