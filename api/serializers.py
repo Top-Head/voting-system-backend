@@ -23,7 +23,7 @@ class CategorySerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(many=True, read_only=True)
     class Meta:
         model = Category
-        fields = ['id', 'name', 'projects']
+        fields = ['id', 'name']
 
     def create(self, validated_data):
         projects_data = validated_data.pop('projects')
