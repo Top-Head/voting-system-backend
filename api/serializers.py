@@ -20,7 +20,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         return project
 
 class CategorySerializer(serializers.ModelSerializer):
-    projects = ProjectSerializer(many=True, read_only=True)
+    #projects = ProjectSerializer(many=True, read_only=True)
     class Meta:
         model = Category
         fields = ['id', 'name']
