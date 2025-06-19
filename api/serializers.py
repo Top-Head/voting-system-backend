@@ -25,12 +25,12 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'name']
 
-    def create(self, validated_data):
-        projects_data = validated_data.pop('projects')
-        category = Category.objects.create(**validated_data)
-        for project_data in projects_data:
-            Project.objects.create(category=category, **project_data)
-        return category 
+    #def create(self, validated_data):
+     #   projects_data = validated_data.pop('projects')
+      #  category = Category.objects.create(**validated_data)
+       # for project_data in projects_data:
+        #    Project.objects.create(category=category, **project_data)
+        #return category 
 
 
 class ActivitySerializer(serializers.ModelSerializer):
