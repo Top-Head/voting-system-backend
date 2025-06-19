@@ -2,13 +2,14 @@ from dal import autocomplete
 from rest_framework import status
 from django.db.models import Count
 from rest_framework.views import APIView
-from django.contrib.auth import authenticate
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, parser_classes
 from api.models import Category, Project, Voter, Vote, Member, Activity
 from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer, VoteSerializer, ActivitySerializer, VoterSerializer
 from django.contrib.auth.hashers import make_password, check_password
+from rest_framework.parsers import MultiPartParser, FormParser
+import json
 
 
 # Create your views here.
@@ -56,34 +57,6 @@ def update_activity(request, id):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def create_category(request):
-    serializer = CategorySerializer(data=request.data)
-    
-    if serializer.is_valid():
-        category = serializer.save()
-        return Response({
-            "message": "Categoria criada com sucesso!",
-            "category": CategorySerializer(category).data
-        }, status=status.HTTP_201_CREATED)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['PUT'])
-def update_category(request, id):
-    try:
-        category = Category.objects.get(id=id)
-    except Category.DoesNotExist:
-        return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = CategorySerializer(instance=category, data=request.data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 @api_view(['PATCH'])
 def close_activity(request, id):
     try:
@@ -97,8 +70,30 @@ def close_activity(request, id):
     return Response({"message": "Activity closed successfully"}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
 def create_project(request):
-    serializer = ProjectSerializer(data=request.data)
+    # Extrai os dados do corpo da requisição
+    members_json = request.data.get('members')
+
+    if members_json:
+        try:
+            # Transforma a string JSON num dicionário Python
+            members_data = json.loads(members_json)
+        except json.JSONDecodeError:
+            return Response({"error": "Erro ao decodificar membros"}, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({"members": ["This field is required."]}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Monta o dicionário final com todos os dados
+    data = {
+        "name": request.data.get("name"),
+        "description": request.data.get("description"),
+        "category": request.data.get("category"),
+        "project_cover": request.data.get("project_cover"),
+        "members": members_data,
+    }
+
+    serializer = ProjectSerializer(data=data)
 
     if serializer.is_valid():
         project = serializer.save()
@@ -123,19 +118,6 @@ def update_project(request, id):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['POST'])
-def create_member(request):
-    serializer = MemberSerializer(data=request.data)
-
-    if serializer.is_valid():
-        member = serializer.save()
-        return Response({
-            "message": "Membro criado com sucesso!",
-            "member": MemberSerializer(member).data
-        }, status=status.HTTP_201_CREATED)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #----------------------------------------------GET--------------------------------------------------------
 
@@ -253,7 +235,6 @@ def register_voter(request):
     if Voter.objects.filter(email=data['email']).exists():
         return Response({"error": "Email already registered"}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Criptografar a senha antes de salvar
     data['password'] = make_password(data['password'])
     serializer = VoterSerializer(data=data)
     if serializer.is_valid():
@@ -263,8 +244,6 @@ def register_voter(request):
             "voter": serializer.data
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-from rest_framework.permissions import IsAuthenticated
 
 @api_view(['POST'])
 def vote_project(request):
