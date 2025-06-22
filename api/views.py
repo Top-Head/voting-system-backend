@@ -19,7 +19,7 @@ class CategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Category.objects.all()
 
-        activity_id = self.forwarded.get('activity', None)
+        activity_id = self.forwarded.get('activity') or self.request.GET.get('activity')
         if activity_id:
             qs = qs.filter(activity_id=activity_id)
 
