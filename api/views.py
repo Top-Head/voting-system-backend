@@ -70,27 +70,8 @@ def close_activity(request, id):
     return Response({"message": "Activity closed successfully"}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-@parser_classes([MultiPartParser, FormParser])
 def create_project(request):
-    members_json = request.data.get('members')
-
-    if members_json:
-        try:
-            members_data = json.loads(members_json)
-        except json.JSONDecodeError:
-            return Response({"error": "Erro ao decodificar membros"}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({"members": ["This field is required."]}, status=status.HTTP_400_BAD_REQUEST)
-
-    data = {
-        "name": request.data.get("name"),
-        "description": request.data.get("description"),
-        "category": request.data.get("category"),
-        "project_cover": request.data.get("project_cover"),
-        "members": members_data,
-    }
-
-    serializer = ProjectSerializer(data=data)
+    serializer = ProjectSerializer(data=request.data)
 
     if serializer.is_valid():
         project = serializer.save()
