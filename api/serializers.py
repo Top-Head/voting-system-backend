@@ -10,7 +10,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     members = MemberSerializer(many=True)
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'category', 'project_cover', 'members']
+        fields = ['id', 'name', 'description', 'category', 'members']
 
     def create(self, validated_data):
         members_data = validated_data.pop('members')
@@ -24,13 +24,6 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'projects']
-
-    def create(self, validated_data):
-        projects_data = validated_data.pop('projects')
-        category = Category.objects.create(**validated_data)
-        for project_data in projects_data:
-            Project.objects.create(category=category, **project_data)
-        return category 
 
 
 class ActivitySerializer(serializers.ModelSerializer):
