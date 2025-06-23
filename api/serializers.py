@@ -20,17 +20,10 @@ class ProjectSerializer(serializers.ModelSerializer):
         return project
 
 class CategorySerializer(serializers.ModelSerializer):
-    #projects = ProjectSerializer(many=True, read_only=True)
+    projects = ProjectSerializer(many=True, read_only=True)
     class Meta:
         model = Category
-        fields = ['id', 'name']
-
-    #def create(self, validated_data):
-     #   projects_data = validated_data.pop('projects')
-      #  category = Category.objects.create(**validated_data)
-       # for project_data in projects_data:
-        #    Project.objects.create(category=category, **project_data)
-        #return category 
+        fields = ['id', 'name', 'projects']
 
 
 class ActivitySerializer(serializers.ModelSerializer):

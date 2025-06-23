@@ -1,13 +1,20 @@
-# Vonting System - API Documentation
+# Voting System - API Documentation
 
-## Endpoints
+## Sumário
 
-### Admin Endpoints
+- [Admin Endpoints](#admin-endpoints)
+- [Voter Endpoints](#voter-endpoints)
+- [Endpoints de Consulta](#endpoints-de-consulta)
+- [Ranking Endpoints](#ranking-endpoints)
 
-#### 2. Create Activity
-- **URL**: `/api/create-activity`
+---
+
+## Admin Endpoints
+
+### 1. Create Activity
+- **URL**: `/api/admin/create-activity`
 - **Method**: POST
-- **Description**: Create a new activity (admin only).
+- **Descrição**: Cria uma nova atividade.
 - **Request Body**:
   ```json
   {
@@ -28,10 +35,10 @@
   }
   ```
 
-#### 3. Update Activity
+### 2. Update Activity
 - **URL**: `/api/update-activity/<int:id>`
 - **Method**: PUT
-- **Description**: Update an existing activity by ID (admin only).
+- **Descrição**: Atualiza uma atividade existente.
 - **Request Body**:
   ```json
   {
@@ -49,10 +56,10 @@
   }
   ```
 
-#### 4. Close Activity
+### 3. Close Activity
 - **URL**: `/api/admin/close-activity/<int:id>`
 - **Method**: PATCH
-- **Description**: Close an activity by ID (admin only).
+- **Descrição**: Fecha uma atividade.
 - **Response**:
   ```json
   {
@@ -60,10 +67,10 @@
   }
   ```
 
-#### 5. Create Category
+### 4. Create Category
 - **URL**: `/api/admin/create-category`
 - **Method**: POST
-- **Description**: Create a new category (admin only).
+- **Descrição**: Cria uma nova categoria.
 - **Request Body**:
   ```json
   {
@@ -84,10 +91,10 @@
   }
   ```
 
-#### 6. Update Category
+### 5. Update Category
 - **URL**: `/api/admin/update-category/<int:id>`
 - **Method**: PUT
-- **Description**: Update an existing category by ID (admin only).
+- **Descrição**: Atualiza uma categoria existente.
 - **Request Body**:
   ```json
   {
@@ -105,18 +112,16 @@
   }
   ```
 
-
-#### 7. Create Project
+### 6. Create Project
 - **URL**: `/api/admin/create-project`
 - **Method**: POST
-- **Description**: Create a new project (admin only).
+- **Descrição**: Cria um novo projeto.
 - **Request Body**:
   ```json
   {
     "name": "New Project",
     "description": "Project description",
     "category": 1,
-    "project_cover": "url_to_image",
     "members": [
       {"name": "Member 1", "email": "member1@example.com"}
     ]
@@ -131,7 +136,6 @@
       "name": "New Project",
       "description": "Project description",
       "category": 1,
-      "project_cover": "url_to_image",
       "members": [
         {"id": 1, "name": "Member 1", "email": "member1@example.com"}
       ]
@@ -139,17 +143,16 @@
   }
   ```
 
-#### 8. Update Project
+### 7. Update Project
 - **URL**: `/api/admin/update-project/<int:id>`
 - **Method**: PUT
-- **Description**: Update an existing project by ID (admin only).
+- **Descrição**: Atualiza um projeto existente.
 - **Request Body**:
   ```json
   {
     "name": "Updated Project",
     "description": "Updated description",
     "category": 1,
-    "project_cover": "url_to_image",
     "members": [
       {"name": "Member 1", "email": "member1@example.com"}
     ]
@@ -162,43 +165,57 @@
     "name": "Updated Project",
     "description": "Updated description",
     "category": 1,
-    "project_cover": "url_to_image",
     "members": [
       {"id": 1, "name": "Member 1", "email": "member1@example.com"}
     ]
-    }```
-    
-#### 10. Category Autocomplete
+
+  }
+  ```
+
+### 8. Category Autocomplete
 - **URL**: `/category-autocomplete/`
 - **Method**: GET
-- **Description**: Autocomplete for categories (admin, used in forms).
-- **Query Params**: `activity` (optional), `q` (search string)
+- **Descrição**: Autocomplete de categorias (admin, usado em formulários).
+- **Query Params**: `activity` (opcional), `q` (busca)
 - **Response**: Lista de categorias filtradas.
 
-### Voter Endpoints
+---
 
-### 3. Voter Register
+## Voter Endpoints
+
+### 1. Register Voter
 - **URL**: `/api/register-voter`
 - **Method**: POST
-- **Description**: Register a voter to the app
+- **Descrição**: Registra um novo votante.
 - **Request Body**:
   ```json
   {
-    "name": "omar",
+    "name": "Nome",
     "email": "voter@example.com",
-    "password": "1kasm"
+    "password": "senha"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "Voter registered successfully!",
+    "voter": {
+      "id": 1,
+      "name": "Nome",
+      "email": "voter@example.com"
+    }
   }
   ```
 
 ### 2. Voter Login
 - **URL**: `/api/login`
 - **Method**: POST
-- **Description**: Authenticate a voter and retrieve a token.
+- **Descrição**: Autentica o votante e retorna o token JWT.
 - **Request Body**:
   ```json
   {
     "email": "voter@example.com",
-    "password": "google123"
+    "password": "senha"
   }
   ```
 - **Response**:
@@ -210,14 +227,13 @@
   }
   ```
 
-#### 2. Vote for Project
+### 3. Vote for Project
 - **URL**: `/api/vote-project`
 - **Method**: POST
-- **Description**: Submit a vote for a project.
+- **Descrição**: Votar em um projeto.
 - **Request Body**:
   ```json
   {
-    "voter": 2,
     "category": 1,
     "project": 1
   }
@@ -229,14 +245,13 @@
   }
   ```
 
-#### 3. Vote for Expositor
+### 4. Vote for Expositor
 - **URL**: `/api/vote-expositor`
 - **Method**: POST
-- **Description**: Submit a vote for an expositor.
+- **Descrição**: Votar em um expositor.
 - **Request Body**:
   ```json
   {
-    "voter": 1,
     "category": 1,
     "member": 1
   }
@@ -244,63 +259,61 @@
 - **Response**:
   ```json
   {
-    "message": "Voted with sucess."
+    "message": "Voted with success."
   }
   ```
-### Retrieve Endpoints
-#### 1. Get Members
+
+---
+
+## Endpoints de Consulta
+
+### 1. Get Members
 - **URL**: `/api/get-members`
 - **Method**: GET
-- **Description**: Retrieve a list of members.
+- **Descrição**: Lista todos os membros.
 - **Response**:
   ```json
   [
     {
       "id": 1,
       "name": "Member 1",
-      "email": "example@gmail.com",
-      "classe": "Class 1",
-      "turma": "IB",
-      "profile_image": "url_to_image",
-      "course": "Informatica"
+      "email": "example@gmail.com"
     }
   ]
   ```
 
-#### 2. Get Categories
+### 2. Get Categories
 - **URL**: `/api/get-categorys`
 - **Method**: GET
-- **Description**: Retrieve a list of categories.
+- **Descrição**: Lista todas as categorias.
 - **Response**:
   ```json
   [
     {
       "id": 1,
       "name": "Category 1",
-      "description": "Description 1",
       "projects": []
     }
   ]
   ```
 
-#### 3. Get Category by ID
+### 3. Get Category by ID
 - **URL**: `/api/get-category/<int:id>`
 - **Method**: GET
-- **Description**: Retrieve details of a specific category by ID.
+- **Descrição**: Detalhes de uma categoria.
 - **Response**:
   ```json
   {
     "id": 1,
     "name": "Category 1",
-    "description": "Description 1",
     "projects": []
   }
   ```
 
-#### 4. Get Projects
+### 4. Get Projects
 - **URL**: `/api/get-projects`
 - **Method**: GET
-- **Description**: Retrieve a list of projects.
+- **Descrição**: Lista todos os projetos.
 - **Response**:
   ```json
   [
@@ -309,16 +322,15 @@
       "name": "Project 1",
       "description": "Description 1",
       "category": 1,
-      "project_cover": "url_to_image",
       "members": []
     }
   ]
   ```
 
-#### 5. Get Project by ID
+### 5. Get Project by ID
 - **URL**: `/api/get-project/<int:id>`
 - **Method**: GET
-- **Description**: Retrieve details of a specific project by ID.
+- **Descrição**: Detalhes de um projeto.
 - **Response**:
   ```json
   {
@@ -326,15 +338,14 @@
     "name": "Project 1",
     "description": "Description 1",
     "category": 1,
-    "project_cover": "url_to_image",
     "members": []
   }
   ```
 
-#### 6. Count Projects
+### 6. Count Projects
 - **URL**: `/api/count-project`
 - **Method**: GET
-- **Description**: Retrieve the total count of projects.
+- **Descrição**: Total de projetos.
 - **Response**:
   ```json
   {
@@ -342,10 +353,10 @@
   }
   ```
 
-#### 7. Count Categories
+### 7. Count Categories
 - **URL**: `/api/count-category`
 - **Method**: GET
-- **Description**: Retrieve the total count of categories.
+- **Descrição**: Total de categorias.
 - **Response**:
   ```json
   {
@@ -353,10 +364,10 @@
   }
   ```
 
-#### 8. Get Votes
+### 8. Get Votes
 - **URL**: `/api/get-votes`
 - **Method**: GET
-- **Description**: Retrieve all votes.
+- **Descrição**: Lista todos os votos.
 - **Response**:
   ```json
   [
@@ -372,10 +383,10 @@
   ]
   ```
 
-#### 9. Get Activities
+### 9. Get Activities
 - **URL**: `/api/get-activities`
 - **Method**: GET
-- **Description**: Retrieve all activities.
+- **Descrição**: Lista todas as atividades.
 - **Response**:
   ```json
   [
@@ -388,10 +399,10 @@
   ]
   ```
 
-#### 10. Get Activity by ID
+### 10. Get Activity by ID
 - **URL**: `/api/get-activity/<int:id>`
 - **Method**: GET
-- **Description**: Retrieve details of a specific activity by ID.
+- **Descrição**: Detalhes de uma atividade.
 - **Response**:
   ```json
   {
@@ -402,12 +413,14 @@
   }
   ```
 
-### Ranking Endpoints
+---
 
-#### 1. Get Project Ranking
+## Ranking Endpoints
+
+### 1. Get Project Ranking
 - **URL**: `/api/ranking/projects/<int:category_id>/`
 - **Method**: GET
-- **Description**: Retrieve the project ranking by number of votes (descending) for a category.
+- **Descrição**: Ranking de projetos por votos na categoria.
 - **Response**:
   ```json
   [
@@ -415,16 +428,16 @@
       "project_id": 1,
       "name": "Project 1",
       "description": "Description 1",
-      "category": "Category 1",
+      "category_name": "Category 1",
       "votes": 3
     }
   ]
   ```
 
-#### 2. Get Members Ranking
+### 2. Get Members Ranking
 - **URL**: `/api/ranking/members/<int:category_id>/`
 - **Method**: GET
-- **Description**: Retrieve the members ranking by number of votes (descending) for a category.
+- **Descrição**: Ranking de membros por votos na categoria.
 - **Response**:
   ```json
   [
@@ -436,3 +449,9 @@
     }
   ]
   ```
+
+---
+
+**Observações:**
+- Para endpoints protegidos, envie o token JWT no header `Authorization: Bearer <access_token>`.
+- Em caso de erro, a resposta conterá um campo `"error"`

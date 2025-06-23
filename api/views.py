@@ -3,18 +3,14 @@ from rest_framework import status
 from django.db.models import Count
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import api_view, parser_classes
+from django.contrib.auth.hashers import make_password, check_password
 from api.models import Category, Project, Voter, Vote, Member, Activity
 from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer, VoteSerializer, ActivitySerializer, VoterSerializer
-from django.contrib.auth.hashers import make_password, check_password
-from rest_framework.parsers import MultiPartParser, FormParser
-import json
 
 
 # Create your views here.
-# ---------------------------------------------Admin-----------------------------------------------  
-
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Category.objects.all()
@@ -97,8 +93,6 @@ def update_project(request, id):
     
     return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
-#----------------------------------------------GET--------------------------------------------------------
-
 @api_view(['GET'])
 def count_project(request):
     project_count = Project.objects.count()
@@ -180,7 +174,6 @@ def get_activity(request, id):
     serializer = ActivitySerializer(activity)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-#---------------------------------------------Voter-------------------------------------------------
 @api_view(['POST'])  
 def voter_login(request):
     email = request.data.get('email')

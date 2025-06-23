@@ -2,12 +2,10 @@ from django.urls import path
 from api import views
 
 urlpatterns = [
-# ---------------------------------------------Admin-----------------------------------------------
     path('category-autocomplete/', views.CategoryAutocomplete.as_view(), name='category-autocomplete'),
     path('api/admin/close-activity/<int:id>', views.close_activity, name='close_category'),
     path('api/admin/create-project', views.create_project, name='create_project'),
     path('api/admin/update-project/<int:id>', views.update_project, name='update_project'),
-#---------------------------------------------Voter-------------------------------------------------
     path('api/login', views.voter_login, name='voter_login'),
     path('api/vote-project', views.vote_project, name='vote_poject'),
     path('api/vote-expositor', views.vote_expositor, name='vote_expositor'),
