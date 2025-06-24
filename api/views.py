@@ -153,6 +153,17 @@ def get_members(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
+def get_members_by_category(request, category_id):
+    try:
+        category = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    members = Member.objects.filter(project__category=category)
+    serializer = MemberSerializer(members, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
 def get_votes(request):
     votes = Vote.objects.all()
     serializer = VoteSerializer(votes, many=True)
@@ -218,7 +229,15 @@ def register_voter(request):
 
 @api_view(['POST'])
 def vote_project(request):
-    voter = request.user  
+    email = request.user.email if hasattr(request.user, 'email') else None
+    if not email:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        voter = Voter.objects.get(email=email)
+    except Voter.DoesNotExist:
+        return Response({"error": "Voter not found."}, status=status.HTTP_404_NOT_FOUND)
+    
     category_id = request.data.get("category")
     project_id = request.data.get("project")
 
@@ -249,7 +268,15 @@ def vote_project(request):
 
 @api_view(['POST'])
 def vote_expositor(request):
-    voter = request.user
+    email = request.user.email if hasattr(request.user, 'email') else None
+    if not email:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    try:
+        voter = Voter.objects.get(email=email)
+    except Voter.DoesNotExist:
+        return Response({"error": "Voter not found."}, status=status.HTTP_404_NOT_FOUND)
+    
     category_id = request.data.get("category")
     member_id = request.data.get("member")
 
