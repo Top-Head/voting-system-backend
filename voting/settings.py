@@ -81,6 +81,12 @@ CSRF_TRUSTED_ORIGINS = [
     os.getenv('CSRF_TRUSTED_ORIGINS_1'),
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
 ROOT_URLCONF = 'voting.urls'
 
 TEMPLATES = [
