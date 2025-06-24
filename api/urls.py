@@ -25,5 +25,6 @@ urlpatterns = [
     path('api/get-activity/<int:id>', views.get_activity, name='get_activity'),
     path('api/update-activity/<int:id>', views.update_activity, name='update_activity'),
     path('api/count-projct-by-category', views.count_project_in_category, name='count_project_by_category'),
-    path('api/register-voter', views.register_voter, name='register_voter')
+    path('api/register-voter', views.register_voter, name='register_voter'),
+    path('api/get-members-by-category/<int:category_id>', views.get_members_by_category, name='get_members_by_category'),
 ]
