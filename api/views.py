@@ -236,6 +236,9 @@ def register_voter(request):
 @csrf_exempt
 @api_view(['POST'])
 def vote_project(request):
+    if not request.user.is_authenticated:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+
     voter = request.user
     
     category_id = request.data.get("category")
