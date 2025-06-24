@@ -4,6 +4,7 @@ from django.db.models import Count
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
 from api.models import Category, Project, Voter, Vote, Member, Activity
@@ -185,6 +186,7 @@ def get_activity(request, id):
     serializer = ActivitySerializer(activity)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@csrf_exempt
 @api_view(['POST'])  
 def voter_login(request):
     email = request.data.get('email')
@@ -202,9 +204,13 @@ def voter_login(request):
         return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
     refresh = RefreshToken.for_user(voter)
+    refresh['email'] = voter.email
+    access_token = refresh.access_token
+    access_token['email'] = voter.email
+
     return Response({
         "refresh": str(refresh),
-        "access": str(refresh.access_token),
+        "access": str(access_token),
         "email": voter.email
     }, status=status.HTTP_200_OK)
 
@@ -276,7 +282,6 @@ def vote_expositor(request):
         voter = Voter.objects.get(email=email)
     except Voter.DoesNotExist:
         return Response({"error": "Voter not found."}, status=status.HTTP_404_NOT_FOUND)
-    
     category_id = request.data.get("category")
     member_id = request.data.get("member")
 
