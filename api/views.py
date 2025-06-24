@@ -233,6 +233,7 @@ def register_voter(request):
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@csrf_exempt
 @api_view(['POST'])
 def vote_project(request):
     email = request.user.email if hasattr(request.user, 'email') else None
@@ -272,6 +273,7 @@ def vote_project(request):
 
     return Response({"message": "Voted with success!"}, status=status.HTTP_201_CREATED)
 
+@csrf_exempt
 @api_view(['POST'])
 def vote_expositor(request):
     email = request.user.email if hasattr(request.user, 'email') else None
