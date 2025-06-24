@@ -236,14 +236,7 @@ def register_voter(request):
 @csrf_exempt
 @api_view(['POST'])
 def vote_project(request):
-    email = request.user.email if hasattr(request.user, 'email') else None
-    if not email:
-        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    try:
-        voter = Voter.objects.get(email=email)
-    except Voter.DoesNotExist:
-        return Response({"error": "Voter not found."}, status=status.HTTP_404_NOT_FOUND)
+    voter = request.user
     
     category_id = request.data.get("category")
     project_id = request.data.get("project")
@@ -276,14 +269,8 @@ def vote_project(request):
 @csrf_exempt
 @api_view(['POST'])
 def vote_expositor(request):
-    email = request.user.email if hasattr(request.user, 'email') else None
-    if not email:
-        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    try:
-        voter = Voter.objects.get(email=email)
-    except Voter.DoesNotExist:
-        return Response({"error": "Voter not found."}, status=status.HTTP_404_NOT_FOUND)
+    voter = request.user
+
     category_id = request.data.get("category")
     member_id = request.data.get("member")
 
