@@ -6,6 +6,7 @@ class Activity(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     finished = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return self.name    
@@ -16,12 +17,21 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+    
+class SubCategory(models.Model):
+    name = models.CharField(max_length=100)
+    activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='subcategories', default=None)
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='subcategories')
+
+    def __str__(self):
+        return self.name
 
 class Project(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
-    activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='projects', null=True, blank=True)
+    activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='projects')
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='projects')
+    subcategory = models.ForeignKey('SubCategory', on_delete=models.CASCADE, related_name='projects')
     project_cover = models.ImageField(blank=True, null=True, upload_to='project_covers/')
 
     def __str__(self):
@@ -90,15 +100,13 @@ class Voter(AbstractBaseUser, PermissionsMixin):
     
 class Vote(models.Model):
     voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
-    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True, blank=True)
-    vote_type = models.CharField(max_length=10, choices=[('project', 'Projeto'), ('expositor', 'Expositor')], default='project')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('voter', 'activity', 'category', 'vote_type')
+        unique_together = ('voter', 'subcategory')
 
     def __str__(self):
-        return f"Voto de {self.voter} em projeto {self.project} ou expositor {self.member} na categoria {self.category}"
+        return f"Voto de {self.voter} em subcategoria {self.subcategory}"

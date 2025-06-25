@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import Vote, Voter, Member, Project, Category, Activity
+from api.models import Vote, Voter, Member, Project, Category, Activity, SubCategory
 
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,7 +10,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     members = MemberSerializer(many=True)
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'category', 'members']
+        fields = ['id', 'name', 'description', 'subcategory', 'members']
 
     def create(self, validated_data):
         members_data = validated_data.pop('members')
@@ -18,12 +18,18 @@ class ProjectSerializer(serializers.ModelSerializer):
         for member_data in members_data:
             Member.objects.create(project=project, **member_data)
         return project
-
-class CategorySerializer(serializers.ModelSerializer):
+    
+class SubCategorySerializer(serializers.ModelSerializer):
     projects = ProjectSerializer(many=True, read_only=True)
     class Meta:
-        model = Category
+        model = SubCategory
         fields = ['id', 'name', 'projects']
+
+class CategorySerializer(serializers.ModelSerializer):
+    subcategory = SubCategorySerializer(many=True, read_only=True)
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'subcategory']
 
 
 class ActivitySerializer(serializers.ModelSerializer):
