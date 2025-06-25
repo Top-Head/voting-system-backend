@@ -47,4 +47,4 @@ class VoteSerializer(serializers.ModelSerializer):
 class VoterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Voter
-        fields = 'id', 'name', 'email'
+        fields = 'id', 'name', 'email', 'password'
