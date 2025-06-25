@@ -7,11 +7,18 @@ from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
-from api.models import Category, Project, Voter, Vote, Member, Activity
-from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer, VoteSerializer, ActivitySerializer, VoterSerializer
+from api.models import Category, Project, Voter, Vote, Member, Activity, SubCategory
+from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer, VoteSerializer, ActivitySerializer, VoterSerializer, SubCategorySerializer
 
 
 # Create your views here.
+class ActivityAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = Activity.objects.all()
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+        return qs
+
 class CategoryAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         qs = Category.objects.all()
@@ -25,6 +32,15 @@ class CategoryAutocomplete(autocomplete.Select2QuerySetView):
 
         return qs
 
+class SubCategoryAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = SubCategory.objects.all()
+        category_id = self.forwarded.get('category') or self.request.GET.get('category')
+        if category_id:
+            qs = qs.filter(category_id=category_id)
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+        return qs
 
 @api_view(['POST'])
 def create_activity(request):
@@ -94,6 +110,19 @@ def update_project(request, id):
     
     return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
+@api_view(['POST'])
+def create_subcategory(request):
+    serializer = SubCategorySerializer(data=request.data)
+
+    if serializer.is_valid():
+        subcategory = serializer.save()
+        return Response({
+            "message": "Subcategoria criada com sucesso!",
+            "subcategory": SubCategorySerializer(subcategory).data
+        }, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['GET'])
 def count_project(request):
     project_count = Project.objects.count()
@@ -151,6 +180,22 @@ def get_category(request, id):
 def get_members(request):
     members = Member.objects.all()
     serializer = MemberSerializer(members, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_subcategories(request):
+    subcategories = SubCategory.objects.all()
+    serializer = SubCategorySerializer(subcategories, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_subcategory(request, id):
+    try:
+        subcategory = SubCategory.objects.get(id=id)
+    except SubCategory.DoesNotExist:
+        return Response({"error": "Subcategory not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = SubCategorySerializer(subcategory)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
@@ -303,7 +348,7 @@ def vote_expositor(request):
     return Response({"message": "Voted with success."}, status=status.HTTP_201_CREATED)
 
 class ProjectRankingView(APIView):
-    def get(self, request, category_id):
+    def get(self, request, category_id,):
 
         category = Category.objects.get(id=category_id)
 
@@ -325,7 +370,6 @@ class ProjectRankingView(APIView):
 
 class MemberRankingView(APIView):
     def get(self, request, category_id):
-
         category = Category.objects.get(id=category_id)
 
         projects = Project.objects.filter(category=category)
@@ -343,3 +387,14 @@ class MemberRankingView(APIView):
             })
 
         return Response(data)
+
+    
+class VoterListView(APIView):
+    def get(self, request):
+        try:
+            voters = Voter.objects.all()
+            serializer = VoterSerializer(voters, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
