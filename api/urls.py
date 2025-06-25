@@ -2,7 +2,9 @@ from django.urls import path
 from api import views
 
 urlpatterns = [
+    path('activity-autocomplete/', views.ActivityAutocomplete.as_view(), name='activity-autocomplete'),
     path('category-autocomplete/', views.CategoryAutocomplete.as_view(), name='category-autocomplete'),
+    path('subcategory-autocomplete/', views.SubCategoryAutocomplete.as_view(), name='subcategory-autocomplete'),
     path('api/admin/close-activity/<int:id>', views.close_activity, name='close_category'),
     path('api/admin/create-project', views.create_project, name='create_project'),
     path('api/admin/update-project/<int:id>', views.update_project, name='update_project'),
@@ -27,4 +29,7 @@ urlpatterns = [
     path('api/count-projct-by-category', views.count_project_in_category, name='count_project_by_category'),
     path('api/register-voter', views.register_voter, name='register_voter'),
     path('api/get-members-by-category/<int:category_id>', views.get_members_by_category, name='get_members_by_category'),
+    path('api/get-subcategories', views.get_subcategories, name='get_subcategories'),
+    path('api/get-subcategory/<int:id>', views.get_subcategory, name='get_subcategory'),
+    path('api/get-voters/', views.VoterListView.as_view(), name='get_voters')
 ]
