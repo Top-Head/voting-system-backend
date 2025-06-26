@@ -393,6 +393,7 @@ class SubcategoryProjectRankingView(APIView):
                 'name': project.name,
                 'description': project.description,
                 'subcategory_name': subcategory.name,
+                'category_name': project.category.name if project.category else None,
                 'votes': project.vote_count,
                 'members': members_data
             })
