@@ -120,3 +120,4 @@ class Vote(models.Model):
 
     def __str__(self):
         return f"Voto de {self.voter} em subcategoria {self.subcategory}"
+    
