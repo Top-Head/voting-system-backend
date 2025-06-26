@@ -194,9 +194,11 @@ def get_member(request, member_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def get_voter(request, id):
+def get_me(request):
+    voter_id = request.user.id
+
     try:
-        voter = Voter.objects.get(id=id)
+        voter = Voter.objects.get(id=voter_id)
     except Voter.DoesNotExist:
         return Response({"error": "Voter not found"}, status=status.HTTP_404_NOT_FOUND)
     
