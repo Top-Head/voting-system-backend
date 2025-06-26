@@ -59,6 +59,7 @@ class Member(models.Model):
         ('10ª', '10ª'),
         ('11ª', '11ª'),
         ('12ª', '12ª'),
+        ('13ª', '13ª') 
     ]
 
     COURSE_CHOICES = [
