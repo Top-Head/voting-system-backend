@@ -348,25 +348,38 @@ def vote_expositor(request):
     return Response({"message": "Voted with success."}, status=status.HTTP_201_CREATED)
 
 class ProjectRankingView(APIView):
-    def get(self, request, category_id,):
+    def get(self, request, category_id):
+
+        _ = request
 
         category = Category.objects.get(id=category_id)
 
-        projects = Project.objects.filter(category=category).annotate(vote_count=Count('vote')).order_by('-vote_count') 
+        projects = Project.objects.filter(category=category).annotate(vote_count=Count('vote')).order_by('-vote_count')
 
         data = []
         for project in projects:
+            if hasattr(project, 'members'):
+                members = project.members.all()
+            else:
+                members = project.member_set.all()
+            members_data = []
+            for member in members:
+                members_data.append({
+                    'name': member.name,
+                    'classe': member.classe,
+                    'turma': member.turma
+                })
+
             data.append({
                 'project_id': project.id,
                 'name': project.name,
                 'description': project.description,
                 'category_name': category.name,
-                'votes': project.vote_count
-                
+                'votes': project.vote_count,
+                'members': members_data
             })
 
         return Response(data)
-
 
 class MemberRankingView(APIView):
     def get(self, request, category_id):
@@ -388,7 +401,6 @@ class MemberRankingView(APIView):
 
         return Response(data)
 
-    
 class VoterListView(APIView):
     def get(self, request):
         try:
@@ -398,3 +410,32 @@ class VoterListView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class SubcategoryProjectRankingView(APIView):
+    def get(self, request, subcategory_id):
+        try:
+            subcategory = SubCategory.objects.get(id=subcategory_id)
+        except SubCategory.DoesNotExist:
+            return Response({"error": "Subcategory not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        projects = Project.objects.filter(subcategory=subcategory).annotate(vote_count=Count('vote')).order_by('-vote_count')
+
+        data = []
+        for project in projects:
+            members = project.members.all() if hasattr(project, 'members') else project.member_set.all()
+            members_data = [
+                {
+                    'name': member.name,
+                    'classe': member.classe,
+                    'turma': member.turma
+                }
+                for member in members
+            ]
+            data.append({
+                'project_id': project.id,
+                'name': project.name,
+                'description': project.description,
+                'subcategory_name': subcategory.name,
+                'votes': project.vote_count,
+                'members': members_data
+            })
+        return Response(data, status=status.HTTP_200_OK)
