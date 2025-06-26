@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
-from api.models import Category, Project, Voter, Vote, Member, Activity, SubCategory
+from api.models import Category, Project, Voter, Vote, Member, Activity, SubCategory, Stand
 from api.serializers import ProjectSerializer, CategorySerializer, MemberSerializer, VoteSerializer, ActivitySerializer, VoterSerializer, SubCategorySerializer
 
 
@@ -52,21 +52,6 @@ def create_activity(request):
             "message": "Atividade criada com sucesso!",
             "activity": ActivitySerializer(activity).data
         }, status=status.HTTP_201_CREATED)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['PUT'])
-def update_activity(request, id):
-    try:
-        activity = Activity.objects.get(id=id)
-    except Activity.DoesNotExist:
-        return Response({"error": "Activity not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = ActivitySerializer(instance=activity, data=request.data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -173,14 +158,41 @@ def get_category(request, id):
     except Category.DoesNotExist:
         return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    serializer = CategorySerializer(category)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if category.is_global:
+        stand = Stand.objects.filter(category=category)
+        stand_data = None
+        if stand:
+            stand_data = {
+                "id": stand.id,
+                "name": stand.name,
+                "stand_cover": request.build_absolute_uri(stand.stand_cover.url) if stand.stand_cover else None,
+            }
+        return Response({
+            "id": category.id,
+            "name": category.name,
+            "is_global": True,
+            "stand": stand_data
+        }, status=status.HTTP_200_OK)
+    else:
+        serializer = CategorySerializer(category)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_members(request):
     members = Member.objects.all()
     serializer = MemberSerializer(members, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_member(request, member_id):
+    try:
+        member = Member.objects.filter(id=member_id)
+    except Member.DoesNotExist:
+        return Response({"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = MemberSerializer(member)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def get_subcategories(request):
@@ -346,48 +358,6 @@ def vote_expositor(request):
     )
 
     return Response({"message": "Voted with success."}, status=status.HTTP_201_CREATED)
-
-class ProjectRankingView(APIView):
-    def get(self, request, category_id,):
-
-        category = Category.objects.get(id=category_id)
-
-        projects = Project.objects.filter(category=category).annotate(vote_count=Count('vote')).order_by('-vote_count') 
-
-        data = []
-        for project in projects:
-            data.append({
-                'project_id': project.id,
-                'name': project.name,
-                'description': project.description,
-                'category_name': category.name,
-                'votes': project.vote_count
-                
-            })
-
-        return Response(data)
-
-
-class MemberRankingView(APIView):
-    def get(self, request, category_id):
-        category = Category.objects.get(id=category_id)
-
-        projects = Project.objects.filter(category=category)
-
-        members = Member.objects.filter(project__in=projects).annotate(vote_count=Count('vote')).order_by('-vote_count')
-
-        data = []
-        for member in members:
-            data.append({
-                'member_id': member.id,
-                'name': member.name,
-                'category_name': category.name,
-                'votes': member.vote_count
-
-            })
-
-        return Response(data)
-
     
 class VoterListView(APIView):
     def get(self, request):
@@ -398,3 +368,32 @@ class VoterListView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class SubcategoryProjectRankingView(APIView):
+    def get(self, request, subcategory_id):
+        try:
+            subcategory = SubCategory.objects.get(id=subcategory_id)
+        except SubCategory.DoesNotExist:
+            return Response({"error": "Subcategory not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        projects = Project.objects.filter(subcategory=subcategory).annotate(vote_count=Count('vote')).order_by('-vote_count')
+
+        data = []
+        for project in projects:
+            members = project.members.all() if hasattr(project, 'members') else project.member_set.all()
+            members_data = [
+                {
+                    'name': member.name,
+                    'classe': member.classe,
+                    'turma': member.turma
+                }
+                for member in members
+            ]
+            data.append({
+                'project_id': project.id,
+                'name': project.name,
+                'description': project.description,
+                'subcategory_name': subcategory.name,
+                'votes': project.vote_count,
+                'members': members_data
+            })
+        return Response(data, status=status.HTTP_200_OK)
