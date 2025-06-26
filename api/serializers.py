@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import Vote, Voter, Member, Project, Category, Activity, SubCategory
+from api.models import Vote, Voter, Member, Project, Category, Activity, SubCategory, Stand
 
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,7 +29,7 @@ class CategorySerializer(serializers.ModelSerializer):
     subcategory = SubCategorySerializer(many=True, read_only=True)
     class Meta:
         model = Category
-        fields = ['id', 'name', 'subcategory']
+        fields = ['id', 'name', 'subcategory', 'is_global']
 
 
 class ActivitySerializer(serializers.ModelSerializer):
@@ -44,6 +44,11 @@ class ActivitySerializer(serializers.ModelSerializer):
         for category_data in categories_data:
             Category.objects.create(activity=activity, **category_data)
         return activity
+    
+class StandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stand
+        fields = ['id', 'name', 'stand_cover', 'activity', 'category']
 
 class VoteSerializer(serializers.ModelSerializer):
     class Meta:
