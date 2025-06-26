@@ -55,21 +55,6 @@ def create_activity(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['PUT'])
-def update_activity(request, id):
-    try:
-        activity = Activity.objects.get(id=id)
-    except Activity.DoesNotExist:
-        return Response({"error": "Activity not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = ActivitySerializer(instance=activity, data=request.data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 @api_view(['PATCH'])
 def close_activity(request, id):
     try:
@@ -181,6 +166,17 @@ def get_members(request):
     members = Member.objects.all()
     serializer = MemberSerializer(members, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_member(request, member_id):
+    try:
+        member = Member.objects.filter(id=member_id)
+    except Member.DoesNotExist:
+        return Response({"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = MemberSerializer(member)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def get_subcategories(request):
