@@ -193,6 +193,16 @@ def get_member(request, member_id):
     serializer = MemberSerializer(member)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+def get_voter(request, id):
+    try:
+        voter = Voter.objects.get(id=id)
+    except Voter.DoesNotExist:
+        return Response({"error": "Voter not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = VoterSerializer(voter)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def get_subcategories(request):

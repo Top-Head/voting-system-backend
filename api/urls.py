@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/get-subcategories', views.get_subcategories, name='get_subcategories'),
     path('api/get-subcategory/<int:id>', views.get_subcategory, name='get_subcategory'),
     path('api/get-voters/', views.VoterListView.as_view(), name='get_voters'),
-    path('api/get-ranking-category/<int:category_id>', views.MemberRankingView, name='get_ranking_category'),
+    path('api/get-ranking-category/<int:category_id>', views.MemberRankingView.as_view(), name='get_ranking_category'),
+    path('api/get-voter/<int:id>', views.get_voter, name='get_voter'),
 
 ]
