@@ -368,3 +368,22 @@ class VoterListView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class MemberRankingView(APIView):
+    def get(self, request, category_id):
+        category = Category.objects.get(id=category_id)
+
+        projects = Project.objects.filter(category=category)
+
+        members = Member.objects.filter(project__in=projects).annotate(vote_count=Count('vote')).order_by('-vote_count')
+
+        data = []
+        for member in members:
+            data.append({
+                'member_id': member.id,
+                'name': member.name,
+                'category_name': category.name,
+                'votes': member.vote_count
+
+            })
+
+        return Response(data)
