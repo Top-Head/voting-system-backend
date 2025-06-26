@@ -33,4 +33,3 @@ urlpatterns = [
     path('api/get-ranking-category/<int:category_id>', views.MemberRankingView.as_view(), name='get_ranking_category'),
     path('api/subcategoryProjectsRanking/<int:subcategory_id>/', views.SubcategoryProjectRankingView.as_view(), name='subcategory-project-ranking')
 ]
-]
