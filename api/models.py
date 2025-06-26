@@ -69,7 +69,6 @@ class Member(models.Model):
 
     project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='members')
     name = models.CharField(max_length=100)
-    email = models.EmailField()
     classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
     turma = models.CharField(max_length=2)
     profile_image = models.ImageField(blank=True, null=True, upload_to='member_profiles/')
