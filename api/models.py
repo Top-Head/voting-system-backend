@@ -110,14 +110,15 @@ class Voter(AbstractBaseUser, PermissionsMixin):
     
 class Vote(models.Model):
     voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
-    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('voter', 'subcategory')
+        unique_together = (('voter', 'subcategory', 'category'),)
 
     def __str__(self):
-        return f"Voto de {self.voter} em subcategoria {self.subcategory}"
+        return f"Voto de {self.voter} em subcategoria {self.subcategory or self.category}"
     
