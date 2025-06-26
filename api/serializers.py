@@ -10,7 +10,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     members = MemberSerializer(many=True)
     class Meta:
         model = Project
-        fields = ['id', 'name', 'description', 'subcategory', 'members']
+        fields = ['id', 'name', 'subcategory', 'members']
 
     def create(self, validated_data):
         members_data = validated_data.pop('members')

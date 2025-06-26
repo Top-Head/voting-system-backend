@@ -376,7 +376,6 @@ def vote_expositor(request):
         voter=voter,
         category=category,
         member=member,
-        vote_type='expositor'
     )
 
     return Response({"message": "Voted with success."}, status=status.HTTP_201_CREATED)
