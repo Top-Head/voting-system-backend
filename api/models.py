@@ -14,6 +14,7 @@ class Activity(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=100)
     activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='categories', default=None)
+    is_global = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -33,6 +34,15 @@ class Project(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='projects')
     subcategory = models.ForeignKey('SubCategory', on_delete=models.CASCADE, related_name='projects')
     project_cover = models.ImageField(blank=True, null=True, upload_to='project_covers/')
+
+    def __str__(self):
+        return self.name
+    
+class Stand(models.Model):
+    name = models.CharField(max_length=100)
+    stand_cover = models.ImageField(upload_to='stand_cover/')
+    activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='stand')
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='stand')
 
     def __str__(self):
         return self.name

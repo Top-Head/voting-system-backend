@@ -292,7 +292,7 @@
     {
       "id": 1,
       "name": "Category 1",
-      "projects": []
+      "subcategories": []
     }
   ]
   ```
@@ -306,7 +306,7 @@
   {
     "id": 1,
     "name": "Category 1",
-    "projects": []
+    "subcategories": []
   }
   ```
 
@@ -409,7 +409,21 @@
     "id": 1,
     "name": "Activity 1",
     "description": "Description 1",
+    "finished": True
     "categories": []
+  }
+  ```
+
+### 10. Get SubCategory by ID
+- **URL**: `/api/get-subcategory/<int:id>`
+- **Method**: GET
+- **Descrição**: Detalhes de uma sub-categoria.
+- **Response**: 
+  ```json
+  {
+    "id": 1,
+    "name": "Sub-Category",
+    "projects": []
   }
   ```
 
