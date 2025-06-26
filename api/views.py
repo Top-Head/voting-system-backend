@@ -193,6 +193,16 @@ def get_member(request, member_id):
     serializer = MemberSerializer(member)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+def get_voter(request, id):
+    try:
+        voter = Voter.objects.get(id=id)
+    except Voter.DoesNotExist:
+        return Response({"error": "Voter not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = VoterSerializer(voter)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 def get_subcategories(request):
@@ -297,9 +307,9 @@ def vote_project(request):
         return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
 
     voter = request.user
-    
     category_id = request.data.get("category")
     project_id = request.data.get("project")
+    subcategory_id = request.data.get("subcategory") 
 
     if not category_id or not project_id:
         return Response({"error": "Category and Project are required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -309,20 +319,32 @@ def vote_project(request):
     except Category.DoesNotExist:
         return Response({"error": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    try:
+    if category.is_global:
+        if Vote.objects.filter(voter=voter, category=category, subcategory__isnull=True).exists():
+            return Response({"error": "You have already voted in this category."}, status=status.HTTP_400_BAD_REQUEST)
         project = Project.objects.get(id=project_id, category=category)
-    except Project.DoesNotExist:
-        return Response({"error": "Project not found in this category."}, status=status.HTTP_404_NOT_FOUND)
-
-    if Vote.objects.filter(voter=voter, category=category, vote_type='project').exists():
-        return Response({"error": "You have already voted in this category."}, status=status.HTTP_400_BAD_REQUEST)
-
-    Vote.objects.create(
-        voter=voter,
-        category=category,
-        project=project,
-        vote_type='project'
-    )
+        Vote.objects.create(
+            voter=voter,
+            category=category,
+            project=project,
+            subcategory=None
+        )
+    else:
+        if not subcategory_id:
+            return Response({"error": "Subcategory is required for this category."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            subcategory = SubCategory.objects.get(id=subcategory_id, category=category)
+        except SubCategory.DoesNotExist:
+            return Response({"error": "Subcategory not found."}, status=status.HTTP_404_NOT_FOUND)
+        if Vote.objects.filter(voter=voter, category=category, subcategory=subcategory).exists():
+            return Response({"error": "You have already voted in this subcategory."}, status=status.HTTP_400_BAD_REQUEST)
+        project = Project.objects.get(id=project_id, category=category, subcategory=subcategory)
+        Vote.objects.create(
+            voter=voter,
+            category=category,
+            subcategory=subcategory,
+            project=project
+        )
 
     return Response({"message": "Voted with success!"}, status=status.HTTP_201_CREATED)
 
