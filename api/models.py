@@ -45,7 +45,7 @@ class Project(models.Model):
     
 class Stand(models.Model):
     name = models.CharField(max_length=100)
-    stand_cover = models.ImageField(upload_to='media/stand_cover/')
+    stand_cover = models.ImageField(upload_to='stand_cover/')
     activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='stand')
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='stand')
 
@@ -66,12 +66,13 @@ class Member(models.Model):
         ('10ª', '10ª'),
         ('11ª', '11ª'),
         ('12ª', '12ª'),
-        ('13ª', '13ª') 
+        ('13ª', '13ª')
     ]
 
     COURSE_CHOICES = [
         ('Informática', 'Informática'),
         ('Eletrônica', 'Eletrônica'),
+        ('N/A', 'N/A')
     ]
     
     activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='members')
@@ -81,7 +82,7 @@ class Member(models.Model):
     name = models.CharField(max_length=100)
     classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
     turma = models.CharField(max_length=2)
-    profile_image = models.ImageField(blank=True, null=True, upload_to='member_profiles/')
+    profile_image = models.ImageField(upload_to='member_profiles/')
     course = models.CharField(max_length=20, choices=COURSE_CHOICES, null=True, blank=True)
 
     def __str__(self):
