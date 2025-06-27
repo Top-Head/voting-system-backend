@@ -45,7 +45,7 @@ class Project(models.Model):
     
 class Stand(models.Model):
     name = models.CharField(max_length=100)
-    stand_cover = models.ImageField(upload_to='stand_cover/')
+    stand_cover = models.ImageField(upload_to='midea/stand_cover/')
     activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='stand')
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='stand')
 
@@ -82,7 +82,7 @@ class Member(models.Model):
     name = models.CharField(max_length=100)
     classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
     turma = models.CharField(max_length=2)
-    profile_image = models.ImageField(upload_to='member_profiles/')
+    profile_image = models.ImageField(upload_to='midea/member_profiles/')
     course = models.CharField(max_length=20, choices=COURSE_CHOICES, null=True, blank=True)
 
     def __str__(self):
