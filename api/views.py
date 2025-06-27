@@ -1,6 +1,8 @@
 from dal import autocomplete
+from typing import Optional, Type
 from rest_framework import status
 from django.db.models import Count
+from api.features import generate_vote_ranking
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -152,30 +154,100 @@ def get_categorys(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def get_category(request, id):
-    try:
-        category = Category.objects.get(id=id)
-    except Category.DoesNotExist:
-        return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
-    
-    if category.is_global:
-        stand = Stand.objects.filter(category=category)
-        stand_data = None
-        if stand:
-            stand_data = {
-                "id": stand.id,
-                "name": stand.name,
-                "stand_cover": request.build_absolute_uri(stand.stand_cover.url) if stand.stand_cover else None,
-            }
-        return Response({
-            "id": category.id,
-            "name": category.name,
-            "is_global": True,
-            "stand": stand_data
-        }, status=status.HTTP_200_OK)
-    else:
-        serializer = CategorySerializer(category)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+def get_category_items(request):
+     response = []
+     category_id = int(request.GET.get('cat_id', 0))
+     subcategory_id = int(request.GET.get('subcat_id', 0))
+     category_type = request.GET.get('cat_tp', '')
+     activity_id = int(request.GET.get('act_id', 0))
+
+
+     if not request.user.is_authenticated:
+        return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
+     
+     user = request.user
+     activity = Activity.objects.filter(id=activity_id).first()
+
+     if category_id and subcategory_id:
+        if category_type == 'project':
+            projects = Project.objects.filter(subcategory__id=subcategory_id, activity__id=activity.id)
+
+            for proj in projects:
+                has_voted = Vote.objects.filter(voter=user, category__id=category_id, subcategory__id=subcategory_id, project=proj, activity__id=activity.id).exists()
+                response.append(
+                    {
+                        "id": proj.id,
+                        "name": proj.name.encode('utf-8'),
+                        "cover": None,
+                        "activity": proj.activity.name.encode('utf-8'),
+                        "classe": None,
+                        "turma": None,
+                        "course": None,
+                        "has_voted": has_voted
+                    }
+                )
+
+        elif category_type == 'member':
+            members = Member.objects.filter(subcategory__id=subcategory_id, activity__id=activity.id)
+
+            for member in members:
+                has_voted = Vote.objects.filter(voter=user, category__id=category_id,subcategory__id=subcategory_id, member=member, activity__id=activity.id).exists()
+                response.append(
+                    {
+                        "id": member.id,
+                        "name": member.name.encode('utf-8'),
+                        "cover": member.profile_image.url,
+                        "classe": member.classe.encode('utf-8'),
+                        "turma": member.turma,
+                        "course": member.course.encode('utf-8'),
+                        "activity": member.activity.name.encode('utf-8'),
+                        "type": category_type,
+                        "has_voted": has_voted
+                    }
+                )
+
+        return Response({"data": response}, status=status.HTTP_200_OK)
+
+     elif category_id:
+        if category_type == 'member':
+            members = Member.objects.filter(category__id=category_id, activity__id=activity.id)
+
+            for member in members:
+                has_voted = Vote.objects.filter(voter=user, category__id=category_id, member=member, activity__id=activity.id).exists()
+                response.append(
+                    {
+                        "id": member.id,
+                        "name": member.name.encode('utf-8'),
+                        "cover": member.profile_image.url,
+                        "classe": member.classe.encode('utf-8'),
+                        "turma": member.turma,
+                        "course": member.course.encode('utf-8'),
+                        "activity": member.activity.name.encode('utf-8'),
+                        "type": category_type,
+                        "has_voted": has_voted
+                    }
+                )
+
+        elif category_type == 'stand':
+            stands = Stand.objects.filter(category__id=category_id, activity__id=activity.id)
+
+            for stand in stands:
+                has_voted = Vote.objects.filter(voter=user, category__id=category_id, stand=stand, activity__id=activity.id).exists()
+                response.append(
+                    {
+                        "id": stand.id,
+                        "name": stand.name.encode('utf-8'),
+                        "cover": stand.stand_cover.url,
+                        "activity": stand.activity.name.encode('utf-8'),
+                        "type": category_type,
+                        "classe": None,
+                        "turma": None,
+                        "course": None,
+                        "has_voted": has_voted
+                    }
+                )
+
+        return Response({"data": response}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_members(request):
@@ -304,84 +376,89 @@ def register_voter(request):
 
 @csrf_exempt
 @api_view(['POST'])
-def vote_project(request):
+def vote(request):
     if not request.user.is_authenticated:
         return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
 
-    voter = request.user
-    category_id = request.data.get("category")
-    project_id = request.data.get("project")
-    subcategory_id = request.data.get("subcategory") 
+    user = request.user
+    category_id = request.data.get("category_id")
+    category_type = request.data.get("category_type")
+    subcategory_id = request.data.get("subcategory_id")
+    activity_id = request.data.get("activity_id")
+    item_id = request.data.get("item_id") 
 
-    if not category_id or not project_id:
-        return Response({"error": "Category and Project are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        category = Category.objects.get(id=category_id)
-    except Category.DoesNotExist:
-        return Response({"error": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
-
-    if category.is_global:
-        if Vote.objects.filter(voter=voter, category=category, subcategory__isnull=True).exists():
-            return Response({"error": "You have already voted in this category."}, status=status.HTTP_400_BAD_REQUEST)
-        project = Project.objects.get(id=project_id, category=category)
-        Vote.objects.create(
-            voter=voter,
-            category=category,
-            project=project,
-            subcategory=None
-        )
-    else:
-        if not subcategory_id:
-            return Response({"error": "Subcategory is required for this category."}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            subcategory = SubCategory.objects.get(id=subcategory_id, category=category)
-        except SubCategory.DoesNotExist:
-            return Response({"error": "Subcategory not found."}, status=status.HTTP_404_NOT_FOUND)
-        if Vote.objects.filter(voter=voter, category=category, subcategory=subcategory).exists():
-            return Response({"error": "You have already voted in this subcategory."}, status=status.HTTP_400_BAD_REQUEST)
-        project = Project.objects.get(id=project_id, category=category, subcategory=subcategory)
-        Vote.objects.create(
-            voter=voter,
-            category=category,
-            subcategory=subcategory,
-            project=project
-        )
-
-    return Response({"message": "Voted with success!"}, status=status.HTTP_201_CREATED)
-
-@csrf_exempt
-@api_view(['POST'])
-def vote_expositor(request):
-    voter = request.user
-
-    category_id = request.data.get("category")
-    member_id = request.data.get("member")
-
-    if not category_id or not member_id:
-        return Response({"error": "Category and member are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        category = Category.objects.get(id=category_id)
-    except Category.DoesNotExist:
-        return Response({"error": "Category not found."}, status=status.HTTP_404_NOT_FOUND)
-
-    try:
-        member = Member.objects.get(id=member_id)
-    except Member.DoesNotExist:
-        return Response({"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    if Vote.objects.filter(voter=voter, category=category, vote_type='expositor').exists():
-        return Response({"error": "You have already voted a member in this category."}, status=status.HTTP_400_BAD_REQUEST)
-
-    Vote.objects.create(
-        voter=voter,
-        category=category,
-        member=member,
-    )
-
-    return Response({"message": "Voted with success."}, status=status.HTTP_201_CREATED)
+    if not category_id and not item_id and not category_type:
+        return Response({"error": "Category and Item are required."}, status=status.HTTP_400_BAD_REQUEST)
     
+    if category_id and subcategory_id:
+        if category_type == "project":
+            has_voted = Vote.objects.filter(voter=user, category__id=category_id, subcategory__id=subcategory_id, project__id=item_id).exists()
+
+            if has_voted:
+                return Response({"error": "You just voted for this category"},status=status.HTTP_400_BAD_REQUEST)
+            
+            else:
+                Vote.objects.create(
+                    voter=user,
+                    activity_id=activity_id,
+                    category_id=category_id,
+                    subcategory_id=subcategory_id,
+                    category_type=category_type,
+                    project_id=item_id
+                )
+                return Response({"msg": "Voted with sucess"}, status=status.HTTP_200_OK)
+            
+        elif category_type == "member":
+            has_voted = Vote.objects.filter(voter=user, category__id=category_id, subcategory__id=subcategory_id, member__id=item_id).exists()
+
+            if has_voted:
+                return Response({"error": "You just voted for this category"},status=status.HTTP_400_BAD_REQUEST)
+            
+            else:
+                Vote.objects.create(
+                    voter=user,
+                    activity_id=activity_id,
+                    category_id=category_id,
+                    subcategory_id=subcategory_id,
+                    category_type=category_type,
+                    member_id=item_id
+                )
+                return Response({"msg": "Voted with sucess"}, status=status.HTTP_200_OK)
+            
+    elif category_id:
+         if category_type == "members":
+            has_voted = Vote.objects.filter(voter=user, category__id=category_id, member__id=item_id).exists()
+
+            if has_voted:
+                return Response({"error": "You just voted for this category"},status=status.HTTP_400_BAD_REQUEST)
+            
+            else:
+                Vote.objects.create(
+                    voter=user,
+                    activity_id=activity_id,
+                    category_id=category_id,
+                    category_type=category_type,
+                    member_id=item_id
+                )
+
+                return Response({"msg": "Voted with sucess"}, status=status.HTTP_200_OK)
+            
+         elif category_type == "stand":
+            has_voted = Vote.objects.filter(voter=user, category__id=category_id, stand__id=item_id).exists()
+
+            if has_voted:
+                return Response({"error": "You just voted for this category"},status=status.HTTP_400_BAD_REQUEST)
+            
+            else:
+                Vote.objects.create(
+                    voter=user,
+                    activity_id=activity_id,
+                    category_id=category_id,
+                    category_type=category_type,
+                    stand_id=item_id
+                )
+                return Response({"msg": "Voted with sucess"}, status=status.HTTP_200_OK)
+
 class VoterListView(APIView):
     def get(self, request):
         try:
@@ -391,25 +468,17 @@ class VoterListView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class MemberRankingView(APIView):
-    def get(self, request, category_id):
-        category = Category.objects.get(id=category_id)
+class RankingView(APIView):
+    def get(self, request, activity_id):
 
-        projects = Project.objects.filter(category=category)
+        activites = Activity.objects.filter(id=activity_id).first()
 
-        members = Member.objects.filter(project__in=projects).annotate(vote_count=Count('vote')).order_by('-vote_count')
+        if not activites.finished:
+            return Response({"msg": "Rank is not avaible now"}, status=status.HTTP_403_FORBIDDEN)
+        
+        rankings = generate_vote_ranking(activity_id)
 
-        data = []
-        for member in members:
-            data.append({
-                'member_id': member.id,
-                'name': member.name,
-                'category_name': category.name,
-                'votes': member.vote_count
-
-            })
-
-        return Response(data)
+        return Response(rankings, status=status.HTTP_200_OK)
 
 class SubcategoryProjectRankingView(APIView):
     def get(self, request, subcategory_id):
