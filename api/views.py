@@ -6,6 +6,7 @@ from api.features import generate_vote_ranking
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.permissions import AllowAny
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
@@ -355,6 +356,9 @@ def voter_login(request):
         "email": voter.email
     }, status=status.HTTP_200_OK)
 
+voter_login.authentication_classes = []
+voter_login.permission_classes = [AllowAny]
+
 @api_view(['POST'])
 def register_voter(request):
     data = request.data.copy()
@@ -373,6 +377,9 @@ def register_voter(request):
             "voter": serializer.data
         }, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+register_voter.authentication_classes = []
+register_voter.permission_classes = [AllowAny]
 
 @csrf_exempt
 @api_view(['POST'])
@@ -478,6 +485,21 @@ class RankingView(APIView):
         
         rankings = generate_vote_ranking(activity_id)
 
+        return Response(rankings, status=status.HTTP_200_OK)
+
+class PublicRankingView(APIView):
+    authentication_classes = []  
+    permission_classes = []      
+
+    def get(self, request, activity_id):
+        activity = Activity.objects.filter(id=activity_id).first()
+
+        if not activity:
+            return Response({"error": "Activity not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        if not activity.finished:
+            return Response({"msg": "Rank is not avaible now"}, status=status.HTTP_403_FORBIDDEN)
+        rankings = generate_vote_ranking(activity_id)
         return Response(rankings, status=status.HTTP_200_OK)
 
 class SubcategoryProjectRankingView(APIView):

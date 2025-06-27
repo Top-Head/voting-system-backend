@@ -1,5 +1,5 @@
 from django.db.models import Count, F, Value
-from django.db.models import CharField, URLField
+from django.db.models import CharField
 from api.models import Vote
 
 def generate_vote_ranking(activity_id):
