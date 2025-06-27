@@ -503,6 +503,17 @@ class PublicRankingView(APIView):
         rankings = generate_vote_ranking(activity_id)
         return Response(rankings, status=status.HTTP_200_OK)
 
+class VerifyActivity(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, activity_id):
+        activity = Activity.objects.filter(id=activity_id).first()
+        if not activity:
+            return Response({"error": "Activity not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({"is_finished": activity.finished}, status=status.HTTP_200_OK)
+
 class SubcategoryProjectRankingView(APIView):
     def get(self, request, subcategory_id):
         try:
