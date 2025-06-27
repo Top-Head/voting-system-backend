@@ -13,7 +13,7 @@
 ## Admin Endpoints
 
 ### 1. Criar Atividade
-- **URL**: `/api/admin/create-activity`
+- **URL**: `/api/create-activity`
 - **Method**: POST
 - **Body**:
   ```json
@@ -52,14 +52,12 @@
   ```json
   {
     "name": "Nome do Projeto",
-    "description": "Descrição",
     "activity": 1,
     "category": 1,
     "subcategory": 1,
     "members": [
       {
         "name": "Membro 1",
-        "email": "membro1@email.com",
         "classe": "1ª",
         "turma": "A",
         "course": "Informática"
@@ -74,13 +72,11 @@
     "project": {
       "id": 1,
       "name": "Nome do Projeto",
-      "description": "Descrição",
       "subcategory": 1,
       "members": [
         {
           "id": 1,
           "name": "Membro 1",
-          "email": "membro1@email.com",
           "classe": "1ª",
           "turma": "A",
           "course": "Informática"
@@ -99,19 +95,40 @@
   {
     "id": 1,
     "name": "Nome Atualizado",
-    "description": "Descrição Atualizada",
     "subcategory": 1,
     "members": [
       {
         "id": 1,
-        "name": "Membro 1",
-        "email": "membro1@email.com"
+        "name": "Membro 1"
       }
     ]
   }
   ```
 
-### 5. Autocomplete de Categorias/Subcategorias/Atividades
+### 5. Criar Subcategoria
+- **URL**: `/api/create-subcategory`
+- **Method**: POST
+- **Body**:
+  ```json
+  {
+    "name": "Subcategoria",
+    "category": 1,
+    "activity": 1
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "message": "Subcategoria criada com sucesso!",
+    "subcategory": {
+      "id": 1,
+      "name": "Subcategoria",
+      "projects": []
+    }
+  }
+  ```
+
+### 6. Autocomplete de Categorias/Subcategorias/Atividades
 - **URL**: `/category-autocomplete/`, `/subcategory-autocomplete/`, `/activity-autocomplete/`
 - **Method**: GET
 - **Query Params**: `q` (busca), `activity` ou `category` (filtro)
@@ -163,41 +180,27 @@
   }
   ```
 
-### 3. Votar em Projeto
-- **URL**: `/api/vote-project`
+### 3. Votar
+- **URL**: `/api/vote`
 - **Method**: POST
 - **Headers**: `Authorization: Bearer <access_token>`
-- **Body**:
+- **Body** (exemplo para projeto):
   ```json
   {
-    "category": 1,
-    "project": 1
+    "category_id": 1,
+    "category_type": "project",
+    "subcategory_id": 1,
+    "activity_id": 1,
+    "item_id": 1
   }
   ```
 - **Response**:
   ```json
   {
-    "message": "Voted with success!"
+    "msg": "Voted with sucess"
   }
   ```
-
-### 4. Votar em Expositor
-- **URL**: `/api/vote-expositor`
-- **Method**: POST
-- **Headers**: `Authorization: Bearer <access_token>`
-- **Body**:
-  ```json
-  {
-    "category": 1,
-    "member": 1
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "message": "Voted with success."
-  }
-  ```
+- **Obs:** Para votar em membro ou stand, altere `category_type` e `item_id` conforme o tipo.
 
 ---
 
@@ -212,7 +215,6 @@
     {
       "id": 1,
       "name": "Membro 1",
-      "email": "membro@email.com",
       "classe": "1ª",
       "turma": "A",
       "course": "Informática"
@@ -220,7 +222,21 @@
   ]
   ```
 
-### 2. Listar Categorias
+### 2. Detalhar Membro
+- **URL**: `/api/get-member/<int:id>`
+- **Method**: GET
+- **Response**:
+  ```json
+  {
+    "id": 1,
+    "name": "Membro 1",
+    "classe": "1ª",
+    "turma": "A",
+    "course": "Informática"
+  }
+  ```
+
+### 3. Listar Categorias
 - **URL**: `/api/get-categorys`
 - **Method**: GET
 - **Response**:
@@ -229,38 +245,11 @@
     {
       "id": 1,
       "name": "Categoria 1",
-      "is_global": false,
-      "subcategory": []
+      "category_type": "project",
+      "subcategories": []
     }
   ]
   ```
-
-### 3. Detalhar Categoria
-- **URL**: `/api/get-category/<int:id>`
-- **Method**: GET
-- **Response**:
-  - Se for global:
-    ```json
-    {
-      "id": 1,
-      "name": "Categoria Global",
-      "is_global": true,
-      "stand": {
-        "id": 1,
-        "name": "Stand",
-        "stand_cover": "url"
-      }
-    }
-    ```
-  - Se não for global:
-    ```json
-    {
-      "id": 1,
-      "name": "Categoria 1",
-      "is_global": false,
-      "subcategory": []
-    }
-    ```
 
 ### 4. Listar Projetos
 - **URL**: `/api/get-projects`
@@ -271,7 +260,6 @@
     {
       "id": 1,
       "name": "Projeto 1",
-      "description": "Descrição",
       "subcategory": 1,
       "members": []
     }
@@ -329,8 +317,7 @@
     {
       "id": 1,
       "name": "Atividade 1",
-      "description": "Descrição",
-      "categories": []
+      "description": "Descrição"
     }
   ]
   ```
@@ -344,8 +331,7 @@
     "id": 1,
     "name": "Atividade 1",
     "description": "Descrição",
-    "finished": true,
-    "categories": []
+    "finished": true
   }
   ```
 
@@ -380,21 +366,63 @@
 - **Method**: GET
 - **Response**: Lista de membros daquela categoria.
 
+### 14. Listar itens de categoria para votação
+- **URL**: `/api/get-category-items`
+- **Method**: GET
+- **Query Params**: `cat_id`, `subcat_id`, `cat_tp`, `act_id`
+- **Response**: Lista de itens (projetos, membros ou stands) para votação, com status se o usuário já votou.
+
 ---
 
 ## Ranking Endpoints
 
-### 1. Ranking de Membros por Categoria
-- **URL**: `/api/get-ranking-category/<int:category_id>`
+### 1. Ranking Geral por Atividade
+- **URL**: `/api/get-rankings/<int:activity_id>`
+- **Method**: GET
+- **Headers**: `Authorization: Bearer <access_token>`
+- **Response**:
+  ```json
+  [
+    {
+      "category": "Categoria",
+      "subcategory": "Subcategoria",
+      "category_type": "project",
+      "ranking": [
+        {
+          "id": 1,
+          "name": "Projeto 1",
+          "total_votes": 5
+        }
+      ]
+    }
+  ]
+  ```
+
+### 2. Ranking Público por Atividade
+- **URL**: `/api/public-rankings/<int:activity_id>`
+- **Method**: GET
+- **Response**: Igual ao ranking geral, mas sem autenticação.
+
+### 3. Ranking de Projetos por Subcategoria
+- **URL**: `/api/subcategoryProjectsRanking/<int:subcategory_id>/`
 - **Method**: GET
 - **Response**:
   ```json
   [
     {
-      "member_id": 1,
-      "name": "Nome do Membro",
+      "project_id": 1,
+      "name": "Projeto 1",
+      "description": "Descrição",
+      "subcategory_name": "Subcategoria",
       "category_name": "Categoria",
-      "votes": 5
+      "votes": 10,
+      "members": [
+        {
+          "name": "Membro 1",
+          "classe": "1ª",
+          "turma": "A"
+        }
+      ]
     }
   ]
   ```
@@ -403,7 +431,7 @@
 
 ## Observações Gerais
 
-- **Autenticação**: Endpoints de voto exigem JWT no header:  
+- **Autenticação**: Endpoints de voto e rankings privados exigem JWT no header:  
   `Authorization: Bearer <access_token>`
 - **Erros**: Sempre retornam um campo `"error"` com mensagem.
 - **Uploads**: Imagens são URLs absolutas.
@@ -411,4 +439,4 @@
 - **Autocomplete**: Use para selects dinâmicos no admin.
 - **Atualize sempre os tokens após login.**
 
-Se precisar de exemplos de erro ou detalhes de
+---
