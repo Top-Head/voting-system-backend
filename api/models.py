@@ -12,9 +12,16 @@ class Activity(models.Model):
         return self.name    
     
 class Category(models.Model):
+    CHOOSE_TYPE = [
+        ('stand', 'Stand'),
+        ('member', 'Membros'),
+        ('project', 'Projeto')
+    ]
+
+
     name = models.CharField(max_length=100)
     activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='categories', default=None)
-    is_global = models.BooleanField(default=False)
+    category_type = models.CharField(max_length=100, choices=CHOOSE_TYPE) 
 
     def __str__(self):
         return self.name
@@ -65,8 +72,11 @@ class Member(models.Model):
         ('Informática', 'Informática'),
         ('Eletrônica', 'Eletrônica'),
     ]
-
+    
+    activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='members')
     project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='members')
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='members')
+    subcategory = models.ForeignKey('SubCategory', on_delete=models.CASCADE, related_name='members')
     name = models.CharField(max_length=100)
     classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
     turma = models.CharField(max_length=2)
@@ -106,11 +116,20 @@ class Voter(AbstractBaseUser, PermissionsMixin):
         return self.email
     
 class Vote(models.Model):
+    CHOOSE_TYPE = [
+        ('stand', 'Stand'),
+        ('member', 'Membro'),
+        ('project', 'Projeto')
+    ]
+
     voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    category_type = models.CharField(max_length=100, choices=CHOOSE_TYPE)
     subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
     member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True, blank=True)
+    stand = models.ForeignKey(Stand, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -118,4 +137,3 @@ class Vote(models.Model):
 
     def __str__(self):
         return f"Voto de {self.voter} em subcategoria {self.subcategory or self.category}"
-    
