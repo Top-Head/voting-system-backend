@@ -45,6 +45,17 @@ class StandAdminForm(forms.ModelForm):
             )
         }
 
+class MemberAdminForm(forms.ModelForm):
+    class Meta:
+        model = Member
+        fields = '__all__'
+        widgets = {
+            'subcategory': autocomplete.ModelSelect2(
+                url='subcategory-autocomplete',
+                forward=['category']
+            )
+        }
+
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectAdminForm
 
@@ -54,11 +65,14 @@ class SubCategoryAdmin(admin.ModelAdmin):
 class StandAdmin(admin.ModelAdmin):
     form = StandAdminForm
 
+class MemberAdmin(admin.ModelAdmin):
+    form = MemberAdminForm
+
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Category)
 admin.site.register(Vote)
 admin.site.register(Voter)
-admin.site.register(Member)
+admin.site.register(Member, MemberAdmin)
 admin.site.register(Activity)
 admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(Stand, StandAdmin)
