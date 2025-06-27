@@ -359,6 +359,7 @@ def voter_login(request):
 voter_login.authentication_classes = []
 voter_login.permission_classes = [AllowAny]
 
+@csrf_exempt
 @api_view(['POST'])
 def register_voter(request):
     data = request.data.copy()

@@ -30,5 +30,6 @@ urlpatterns = [
     path('api/get-rankings/<int:activity_id>', views.RankingView.as_view(), name='get_ranking_category'),
     path('api/get-me', views.get_me, name='get_voter'),
     path('api/subcategoryProjectsRanking/<int:subcategory_id>/', views.SubcategoryProjectRankingView.as_view(), name='subcategory-project-ranking'),
-     path('api/public-rankings/<int:activity_id>', views.PublicRankingView.as_view(), name='public_ranking_category'),
+    path('api/public-rankings/<int:activity_id>', views.PublicRankingView.as_view(), name='public_ranking_category'),
+    path('api/get-categories', views.get_categorys, name='get_categories'),
 ]

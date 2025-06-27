@@ -26,10 +26,10 @@ class SubCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'projects']
 
 class CategorySerializer(serializers.ModelSerializer):
-    subcategory = SubCategorySerializer(many=True, read_only=True)
+    subcategories = SubCategorySerializer(many=True, read_only=True)
     class Meta:
         model = Category
-        fields = ['id', 'name', 'category_type', 'subcategory', 'is_global']
+        fields = ['id', 'name', 'category_type', 'subcategories']
 
 
 class ActivitySerializer(serializers.ModelSerializer):
