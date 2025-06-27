@@ -32,4 +32,5 @@ urlpatterns = [
     path('api/subcategoryProjectsRanking/<int:subcategory_id>/', views.SubcategoryProjectRankingView.as_view(), name='subcategory-project-ranking'),
     path('api/public-rankings/<int:activity_id>', views.PublicRankingView.as_view(), name='public_ranking_category'),
     path('api/get-categories', views.get_categorys, name='get_categories'),
+    path('api/verify-activity/<int:activity_id>', views.VerifyActivity.as_view(), name='verify_activity'),
 ]
