@@ -82,9 +82,25 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ProjectCreate'
+              type: object
+              required: [name, activity, category, subcategory, members, project_cover]
+              properties:
+                name:
+                  type: string
+                activity:
+                  type: integer
+                category:
+                  type: integer
+                subcategory:
+                  type: integer
+                members:
+                  type: string
+                  description: JSON string com lista de membros (ex: '[{"name":"João","classe":"A","turma":"101","course":"Engenharia"}]')
+                project_cover:
+                  type: string
+                  format: binary
       responses:
         '201':
           description: Projeto criado
@@ -96,7 +112,13 @@ paths:
                   message: { type: string }
                   project: { $ref: '#/components/schemas/Project' }
         '400':
-          description: Erro de validação
+          description: Erro de validação ou imagem ausente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Erro interno ao salvar imagem ou projeto
           content:
             application/json:
               schema:
@@ -247,6 +269,48 @@ paths:
                   voter: { $ref: '#/components/schemas/Voter' }
         '400':
           description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/verify-email:
+    post:
+      tags: [Voter]
+      summary: Verificar email do votante
+      description: Verifica o código enviado por email para ativar a conta do votante.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code]
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                  description: Código de verificação enviado por email
+      responses:
+        '200':
+          description: Email verificado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Código inválido, expirado ou dados ausentes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Email não encontrado
           content:
             application/json:
               schema:
