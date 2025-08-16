@@ -21,7 +21,7 @@ urlpatterns = [
     path('api/create-activity', views.create_activity, name='create_activity'),
     path('api/get-activities', views.get_activities, name='get_activities'),
     path('api/get-activity/<int:id>', views.get_activity, name='get_activity'),
-    path('api/count-projct-by-category', views.count_project_in_category, name='count_project_by_category'),
+    path('api/count-project-by-category', views.count_project_in_category, name='count_project_by_category'),
     path('api/register-voter', views.register_voter, name='register_voter'),
     path('api/get-members-by-category/<int:category_id>', views.get_members_by_category, name='get_members_by_category'),
     path('api/get-subcategories', views.get_subcategories, name='get_subcategories'),
@@ -33,4 +33,5 @@ urlpatterns = [
     path('api/public-rankings/<int:activity_id>', views.PublicRankingView.as_view(), name='public_ranking_category'),
     path('api/get-categories', views.get_categorys, name='get_categories'),
     path('api/verify-activity/<int:activity_id>', views.VerifyActivity.as_view(), name='verify_activity'),
+    path('api/verify-email', views.verify_email, name='verify-email')
 ]

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de Conta</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0;">
+    <!-- Container principal -->
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <!-- Cabeçalho -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #111827; font-size: 24px; font-weight: 700;">Bem-vindo à nossa plataforma!</h1>
+            <p style="color: #6b7280; font-size: 16px; margin-top: 10px;">Estamos felizes por você ter se juntado a nós.</p>
+        </div>
+
+        <!-- Card de conteúdo -->
+        <div style="background-color: #ffffff; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+            <!-- Ícone/Logo -->
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div style="background-color: #6366f1; width: 60px; height: 60px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Título -->
+            <h2 style="color: #111827; font-size: 20px; font-weight: 600; text-align: center; margin-bottom: 20px;">Verifique sua conta</h2>
+            
+            <!-- Texto explicativo -->
+            <p style="color: #6b7280; font-size: 16px; line-height: 1.5; margin-bottom: 25px; text-align: center;">
+                Para completar seu cadastro e começar a usar nossa plataforma, por favor utilize o seguinte código de verificação:
+            </p>
+
+            <!-- Código de verificação -->
+            <div style="background-color: #f9fafb; border: 1px dashed #d1d5db; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 30px;">
+                <span style="color: #111827; font-size: 32px; font-weight: 700; letter-spacing: 8px;">{{code}}</span>
+            </div>
+
+            <!-- Aviso de expiração -->
+            <p style="color: #6b7280; font-size: 14px; text-align: center; margin-bottom: 30px;">
+                Este código expirará em 30 minutos. Se você não solicitou este código, por favor ignore este e-mail.
+            </p>
+        </div>
+
+        <!-- Rodapé -->
+        <div style="text-align: center; margin-top: 30px;">
+            <p style="color: #9ca3af; font-size: 14px;">
+                © 2025 CAF.Todos os direitos reservados.
+                <br>
+                <a href="{{LINK_DA_EMPRESA}}" style="color: #9ca3af; text-decoration: underline;">Visite nosso site</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -65,6 +65,15 @@ AUTH_USER_MODEL = 'api.Voter'
 
 ADMIN_CODE = 'CODE'
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com' 
+EMAIL_PORT = 587  
+EMAIL_USE_TLS = True 
+EMAIL_HOST_USER = 'omarscode007@gmail.com'
+EMAIL_HOST_PASSWORD = 'bzsd ihqb vqkq nbov'  
+EMAIL_USE_SSL = False  
+DEFAULT_FROM_EMAIL = 'your_email@example.com'
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware', 
@@ -95,7 +104,7 @@ ROOT_URLCONF = 'voting.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
