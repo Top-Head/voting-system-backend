@@ -7,9 +7,9 @@ from cloudinary import uploader
 load_dotenv()
 
 cloudinary.config(
-    cloud_name="do4yyqaxj",
-    api_key="369969542636612",
-    api_secret="xpae38WkXnOxVlmybg1WLrxJw1M"
+    cloud_name="dktkxxfxj",
+    api_key="312515664979372",
+    api_secret="G7licg9At4DjbzNt4YQ0WJ_LC9o"
 )
 
 def upload_to_cloudinary_members(image_file):

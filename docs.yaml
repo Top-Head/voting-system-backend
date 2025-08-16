@@ -1,0 +1,809 @@
+openapi: 3.0.3
+info:
+  title: Voting System API
+  version: 1.0.0
+  description: |
+    API para gerenciamento de sistema de votação, incluindo administração, votação, consulta e rankings.
+servers:
+  - url: http://localhost:8000
+    description: Local server
+
+tags:
+  - name: Admin
+  - name: Voter
+  - name: Consulta
+  - name: Ranking
+
+paths:
+  /api/create-activity:
+    post:
+      tags: [Admin]
+      summary: Criar nova atividade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, description]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Atividade criada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  activity:
+                    $ref: '#/components/schemas/Activity'
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/close-activity/{id}:
+    patch:
+      tags: [Admin]
+      summary: Fechar atividade
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Atividade fechada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+        '404':
+          description: Atividade não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/create-project:
+    post:
+      tags: [Admin]
+      summary: Criar projeto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+      responses:
+        '201':
+          description: Projeto criado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  project: { $ref: '#/components/schemas/Project' }
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/update-project/{id}:
+    put:
+      tags: [Admin]
+      summary: Atualizar projeto
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+      responses:
+        '200':
+          description: Projeto atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: Projeto não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/create-subcategory:
+    post:
+      tags: [Admin]
+      summary: Criar subcategoria
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, category, activity]
+              properties:
+                name: { type: string }
+                category: { type: integer }
+                activity: { type: integer }
+      responses:
+        '201':
+          description: Subcategoria criada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  subcategory: { $ref: '#/components/schemas/SubCategory' }
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /category-autocomplete/:
+    get:
+      tags: [Admin]
+      summary: Autocomplete de categorias
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: activity
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Lista de categorias para autocomplete
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Category' }
+
+  /subcategory-autocomplete/:
+    get:
+      tags: [Admin]
+      summary: Autocomplete de subcategorias
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: category
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Lista de subcategorias para autocomplete
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SubCategory' }
+
+  /activity-autocomplete/:
+    get:
+      tags: [Admin]
+      summary: Autocomplete de atividades
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+      responses:
+        '200':
+          description: Lista de atividades para autocomplete
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Activity' }
+
+  /api/register-voter:
+    post:
+      tags: [Voter]
+      summary: Registrar votante
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '201':
+          description: Votante registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string }
+                  voter: { $ref: '#/components/schemas/Voter' }
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/login:
+    post:
+      tags: [Voter]
+      summary: Login votante
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200':
+          description: Login realizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  refresh: { type: string }
+                  access: { type: string }
+                  email: { type: string }
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/vote:
+    post:
+      tags: [Voter]
+      summary: Realizar voto
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [category_id, category_type, item_id]
+              properties:
+                category_id: { type: integer }
+                category_type: { type: string, enum: [project, member, stand, members] }
+                subcategory_id: { type: integer }
+                activity_id: { type: integer }
+                item_id: { type: integer }
+      responses:
+        '200':
+          description: Voto realizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg: { type: string }
+        '400':
+          description: Erro de validação ou voto repetido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/get-members:
+    get:
+      tags: [Consulta]
+      summary: Listar membros
+      responses:
+        '200':
+          description: Lista de membros
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Member' }
+
+  /api/get-member/{id}:
+    get:
+      tags: [Consulta]
+      summary: Detalhar membro
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Detalhes do membro
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        '404':
+          description: Membro não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/get-categorys:
+    get:
+      tags: [Consulta]
+      summary: Listar categorias
+      responses:
+        '200':
+          description: Lista de categorias
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Category' }
+
+  /api/get-projects:
+    get:
+      tags: [Consulta]
+      summary: Listar projetos
+      responses:
+        '200':
+          description: Lista de projetos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Project' }
+
+  /api/get-project/{id}:
+    get:
+      tags: [Consulta]
+      summary: Detalhar projeto
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Detalhes do projeto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: Projeto não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/count-project:
+    get:
+      tags: [Consulta]
+      summary: Contar projetos
+      responses:
+        '200':
+          description: Total de projetos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+
+  /api/count-category:
+    get:
+      tags: [Consulta]
+      summary: Contar categorias
+      responses:
+        '200':
+          description: Total de categorias
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+
+  /api/get-votes:
+    get:
+      tags: [Consulta]
+      summary: Listar votos
+      responses:
+        '200':
+          description: Lista de votos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Vote' }
+
+  /api/get-activities:
+    get:
+      tags: [Consulta]
+      summary: Listar atividades
+      responses:
+        '200':
+          description: Lista de atividades
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Activity' }
+
+  /api/get-activity/{id}:
+    get:
+      tags: [Consulta]
+      summary: Detalhar atividade
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Detalhes da atividade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Activity'
+        '404':
+          description: Atividade não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/get-subcategories:
+    get:
+      tags: [Consulta]
+      summary: Listar subcategorias
+      responses:
+        '200':
+          description: Lista de subcategorias
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SubCategory' }
+
+  /api/get-subcategory/{id}:
+    get:
+      tags: [Consulta]
+      summary: Detalhar subcategoria
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Detalhes da subcategoria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubCategory'
+        '404':
+          description: Subcategoria não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/get-members-by-category/{category_id}:
+    get:
+      tags: [Consulta]
+      summary: Listar membros por categoria
+      parameters:
+        - in: path
+          name: category_id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Lista de membros da categoria
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Member' }
+        '404':
+          description: Categoria não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/get-category-items:
+    get:
+      tags: [Consulta]
+      summary: Listar itens de categoria para votação
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: cat_id
+          schema: { type: integer }
+        - in: query
+          name: subcat_id
+          schema: { type: integer }
+        - in: query
+          name: cat_tp
+          schema: { type: string }
+        - in: query
+          name: act_id
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Lista de itens para votação
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        name: { type: string }
+                        cover: { type: string, nullable: true }
+                        activity: { type: string }
+                        classe: { type: string, nullable: true }
+                        turma: { type: string, nullable: true }
+                        course: { type: string, nullable: true }
+                        has_voted: { type: boolean }
+        '401':
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/get-rankings/{activity_id}:
+    get:
+      tags: [Ranking]
+      summary: Ranking geral por atividade (privado)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: activity_id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Ranking geral
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Ranking' }
+        '403':
+          description: Ranking não disponível
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/public-rankings/{activity_id}:
+    get:
+      tags: [Ranking]
+      summary: Ranking público por atividade
+      parameters:
+        - in: path
+          name: activity_id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Ranking público
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Ranking' }
+        '403':
+          description: Ranking não disponível
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/subcategoryProjectsRanking/{subcategory_id}/:
+    get:
+      tags: [Ranking]
+      summary: Ranking de projetos por subcategoria
+      parameters:
+        - in: path
+          name: subcategory_id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Ranking de projetos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    project_id: { type: integer }
+                    name: { type: string }
+                    description: { type: string }
+                    subcategory_name: { type: string }
+                    category_name: { type: string }
+                    votes: { type: integer }
+                    members:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name: { type: string }
+                          classe: { type: string }
+                          turma: { type: string }
+        '404':
+          description: Subcategoria não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+    Activity:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: string }
+        finished: { type: boolean }
+        categories:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
+
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        category_type: { type: string }
+        subcategories:
+          type: array
+          items: { $ref: '#/components/schemas/SubCategory' }
+
+    SubCategory:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        projects:
+          type: array
+          items: { $ref: '#/components/schemas/Project' }
+
+    Project:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        subcategory: { type: integer }
+        members:
+          type: array
+          items: { $ref: '#/components/schemas/Member' }
+
+    ProjectCreate:
+      type: object
+      required: [name, activity, category, subcategory, members]
+      properties:
+        name: { type: string }
+        activity: { type: integer }
+        category: { type: integer }
+        subcategory: { type: integer }
+        members:
+          type: array
+          items:
+            type: object
+            required: [name, classe, turma, course]
+            properties:
+              name: { type: string }
+              classe: { type: string }
+              turma: { type: string }
+              course: { type: string }
+
+    Member:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        classe: { type: string }
+        turma: { type: string }
+        course: { type: string }
+        profile_image: { type: string, nullable: true }
+
+    Voter:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        password: { type: string }
+
+    Vote:
+      type: object
+      properties:
+        id: { type: integer }
+        voter: { type: integer }
+        subcategory: { type: integer, nullable: true }
+        project: { type: integer, nullable: true }
+        member: { type: integer, nullable: true }
+        stand: { type: integer, nullable: true }
+        category: { type: integer, nullable: true }
+        category_type: { type: string }
+        activity: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    Ranking:
+      type: object
+      properties:
+        category: { type: string }
+        subcategory: { type: string }
+        category_type: { type: string }
+        ranking:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              name: { type: string }
+              total_votes: { type: integer }

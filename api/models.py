@@ -38,6 +38,7 @@ class Project(models.Model):
     name = models.CharField(max_length=100)
     activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='projects')
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='projects')
+    project_cover = models.TextField(null=True)
     subcategory = models.ForeignKey('SubCategory', on_delete=models.CASCADE, related_name='projects')
 
     def __str__(self):
@@ -82,7 +83,7 @@ class Member(models.Model):
     name = models.CharField(max_length=100)
     classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
     turma = models.CharField(max_length=2)
-    profile_image = models.ImageField(upload_to='midea/member_profiles/')
+    profile_image = models.TextField(null=False)
     course = models.CharField(max_length=20, choices=COURSE_CHOICES, null=True, blank=True)
 
     def __str__(self):
@@ -106,7 +107,9 @@ class VoterManager(BaseUserManager):
 class Voter(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    is_active = models.BooleanField(default=True)
+    verification_code = models.CharField(max_length=6, blank=True, null=True)
+    code_generated_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     objects = VoterManager()

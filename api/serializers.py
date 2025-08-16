@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from api.models import Vote, Voter, Member, Project, Category, Activity, SubCategory, Stand
+from api.services.cloudinary import upload_to_cloudinary_members
+from api.models import Vote, Voter, Member, Project, Category, Activity, SubCategory
 
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,12 +11,16 @@ class ProjectSerializer(serializers.ModelSerializer):
     members = MemberSerializer(many=True)
     class Meta:
         model = Project
-        fields = ['id', 'name', 'subcategory', 'members']
+        fields = ['id', 'name', 'subcategory', 'members', 'project_cover']
 
     def create(self, validated_data):
         members_data = validated_data.pop('members')
         project = Project.objects.create(**validated_data)
         for member_data in members_data:
+            if "profile_cover" in member_data:
+                image_file = member_data.pop("profile_cover")
+                member_data['profile_image'] = upload_to_cloudinary_members(image_file)
+
             Member.objects.create(project=project, **member_data)
         return project
     
@@ -44,11 +49,6 @@ class ActivitySerializer(serializers.ModelSerializer):
         for category_data in categories_data:
             Category.objects.create(activity=activity, **category_data)
         return activity
-    
-class StandSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Stand
-        fields = ['id', 'name', 'stand_cover', 'activity', 'category']
 
 class VoteSerializer(serializers.ModelSerializer):
     class Meta:
