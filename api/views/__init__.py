@@ -1,0 +1,1 @@
+from api.views import admin_view, authentication_view, get_view, ranking_view, vote_view
