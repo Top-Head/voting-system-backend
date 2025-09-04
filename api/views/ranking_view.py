@@ -37,7 +37,7 @@ class PublicRankingView(APIView):
         if not activity:
             return Response({"error": "Activity not found"}, status=status.HTTP_404_NOT_FOUND)
         
-        if not activity.finished:
+        if activity.finished:
             return Response({"msg": "Rank is not avaible now"}, status=status.HTTP_403_FORBIDDEN)
         rankings = generate_vote_ranking(activity_id)
         return Response(rankings, status=status.HTTP_200_OK)

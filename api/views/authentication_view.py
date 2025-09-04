@@ -64,7 +64,7 @@ def verify_email(request):
     if voter.verification_code != code:
         return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
     
-    if voter.code_generated_at and (datetime.now() - voter.code_generated_at).total_seconds() > 1800:
+    if voter.code_generated_at and (datetime.now() - voter.code_generated_at.replace(tzinfo=None)).total_seconds() > 1800:
         return Response({"error": "Verification code has expired"}, status=status.HTTP_400_BAD_REQUEST)
     
     voter.is_active = True
@@ -100,6 +100,6 @@ def voter_login(request):
 
     return Response({
         "refresh": str(refresh),
-        "access": str(access_token),
+        "token": str(access_token),
         "email": voter.email
     }, status=status.HTTP_200_OK)

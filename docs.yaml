@@ -339,7 +339,7 @@ paths:
                 type: object
                 properties:
                   refresh: { type: string }
-                  access: { type: string }
+                  token: { type: string }
                   email: { type: string }
         '401':
           description: Credenciais inválidas
