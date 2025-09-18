@@ -15,11 +15,15 @@ def count_project_in_category(request, activity_id):
     try:
         activity = Activity.objects.get(id=activity_id)
     except Activity.DoesNotExist:
-        return Response({"error": "Activity does not exist"})
+        return Response({"error": "Activity does not exist"}, status=status.HTTP_404_NOT_FOUND)
     
-    category_count = Category.objects.filter(activity_id=activity).annotate(project_count=Count('projects'))
-    
-    return Response({"Total": category_count}, status=status.HTTP_200_OK)
+    category_count = (
+        Category.objects
+        .filter(activity_id=activity)
+        .annotate(project_count=Count('projects'))
+        .values("name", "project_count")   
+    )    
+    return Response({"Total": list(category_count)}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def get_projects(request):
@@ -28,9 +32,9 @@ def get_projects(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def get_project(request, id):
+def get_project(request, project_id):
     try:
-        project = Project.objects.get(id=id)
+        project = Project.objects.get(id=project_id)
     except Project.DoesNotExist:
         return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
     
@@ -38,14 +42,19 @@ def get_project(request, id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-def count_category(request):
-    category_count = Category.objects.count()
-    return Response({"total": category_count},status=status.HTTP_200_OK)
-
-@api_view(['GET'])
 def get_categorys(request):
     category = Category.objects.all()
     serializer = CategorySerializer(category, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_category(request, category_id):
+    try:
+        category = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = CategorySerializer(category)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])

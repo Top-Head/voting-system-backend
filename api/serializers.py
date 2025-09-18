@@ -39,9 +39,16 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ActivitySerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True)
+    start_date = serializers.DateField(
+        format="%d-%m-%Y", input_formats=["%d-%m-%Y"], required=False
+    )
+    end_date = serializers.DateField(
+        format="%d-%m-%Y", input_formats=["%d-%m-%Y"], required=False
+    )
+
     class Meta:
         model = Activity
-        fields = ['id', 'name', 'description', 'categories']
+        fields = ['id', 'name', 'description', 'start_date', 'end_date', 'categories']
 
     def create(self, validated_data):
         categories_data = validated_data.pop('categories')

@@ -6,6 +6,8 @@ class Activity(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     finished = models.BooleanField(default=False)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
@@ -36,6 +38,7 @@ class SubCategory(models.Model):
 
 class Project(models.Model):
     name = models.CharField(max_length=100)
+    description = models.TextField(null=True)
     activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='projects')
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='projects')
     project_cover = models.TextField(null=True)
