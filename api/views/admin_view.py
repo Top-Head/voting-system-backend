@@ -55,11 +55,16 @@ def close_activity(request, id):
         activity = Activity.objects.get(id=id)
     except Activity.DoesNotExist:
         return Response({"error": "Activity not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    activity.finished = True
-    activity.save()
-
-    return Response({"message": "Activity closed successfully"}, status=status.HTTP_200_OK)
+    
+    if activity.finished == False:
+        activity.finished = True
+        activity.save()
+        return Response({"message": "Activity closed successfully"}, status=status.HTTP_200_OK)
+    
+    else:
+        activity.finished = False
+        activity.save()
+        return Response({"message": "Activity opened sucessfullt"}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def create_project(request):

@@ -1,8 +1,8 @@
 import random
 import string
 from api.models import Voter
-from datetime import datetime
 from rest_framework import status
+from django.utils import timezone
 from django.core.mail import EmailMessage
 from api.serializers import VoterSerializer
 from rest_framework.response import Response
@@ -29,7 +29,7 @@ def register_voter(request):
         
         code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
         voter.verification_code = code
-        voter.code_generated_at = datetime.now()
+        voter.code_generated_at = timezone.now()
         voter.save()
         
         html = render_to_string("email_verify.html", {"code": code})
@@ -64,7 +64,7 @@ def verify_email(request):
     if voter.verification_code != code:
         return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
     
-    if voter.code_generated_at and (datetime.now() - voter.code_generated_at.replace(tzinfo=None)).total_seconds() > 1800:
+    if voter.code_generated_at and (timezone.now() - voter.code_generated_at).total_seconds() > 1800:
         return Response({"error": "Verification code has expired"}, status=status.HTTP_400_BAD_REQUEST)
     
     voter.is_active = True
