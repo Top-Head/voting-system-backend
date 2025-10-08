@@ -15,7 +15,7 @@ tags:
   - name: Ranking
 
 paths:
-  /api/create-activity:
+  /api/admin/create-activity:
     post:
       tags: [Admin]
       summary: Criar nova atividade
@@ -25,9 +25,13 @@ paths:
           application/json:
             schema:
               type: object
-              required: [name, description]
+              required: [name, description, start_date, end_date]
               properties:
                 name:
+                  type: string
+                start_date:
+                  type: string
+                end_date:
                   type: string
                 description:
                   type: string
@@ -551,6 +555,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/count-activity:
+    get:
+      tags: [Consulta]
+      summary: Contar projetos
+      responses:
+        '200':
+          description: Total de atividades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+
   /api/get-subcategories:
     get:
       tags: [Consulta]
@@ -610,6 +628,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /api/count-members:
+    get:
+      tags: [Consulta]
+      summary: Contar projetos
+      responses:
+        '200':
+          description: Total de membros
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
 
   /api/get-category-items:
     get:
@@ -772,6 +804,8 @@ components:
         id: { type: integer }
         name: { type: string }
         description: { type: string }
+        start_date: {type: string}
+        end_date: {type: string}
         finished: { type: boolean }
         categories:
           type: array
@@ -801,6 +835,7 @@ components:
       properties:
         id: { type: integer }
         name: { type: string }
+        description: {type: string}
         subcategory: { type: integer }
         members:
           type: array

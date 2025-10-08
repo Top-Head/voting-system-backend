@@ -19,3 +19,7 @@ def upload_to_cloudinary_members(image_file):
 def upload_to_cloudinary_projects(image_file):
     response = uploader.upload(image_file, folder="projects")
     return response.get("secure_url")
+
+def upload_to_cloudinary_stand(image_file):
+    response = uploader.upload(image_file, folder="stands")
+    return response.get("secure_url")

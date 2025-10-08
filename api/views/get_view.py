@@ -1,15 +1,43 @@
+from api import models
 from rest_framework import status
-from django.db.models import Count
+from django.db.models import Count, Q
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 from api.models import Category, Project, Voter, Vote, Member, Activity, SubCategory, Stand
-from api.serializers import ProjectSerializer,CategorySerializer,MemberSerializer,VoteSerializer,ActivitySerializer,VoterSerializer,SubCategorySerializer
+from api.serializers import GetActivitySerializer, GetCategorySerializer, GetMemberSerializer, GetProjectSerializer, GetSubCategorySerializer, VoterSerializer, VoteSerializer
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def count_project(request):
     project_count = Project.objects.count()
     return Response({"total": project_count}, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
+@api_view(['GET'])
+def count_voters(self):
+    member_count = Member.objects.count()
+    return Response({"total": member_count}, status=status.HTTP_200_OK)
+
+@cache_page(60 * 5)
+@vary_on_cookie
+@api_view(['GET'])
+def count_activity(request):
+    activity_count = Activity.objects.count()
+    return Response({"total": activity_count}, status=status.HTTP_200_OK)
+
+@cache_page(60 * 5)
+@vary_on_cookie
+@api_view(['GET'])
+def count_members(request):
+    member_count = Member.objects.count()
+    return Response({"total": member_count}, status=status.HTTP_200_OK)
+
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def count_project_in_category(request, activity_id):
     try:
@@ -25,12 +53,37 @@ def count_project_in_category(request, activity_id):
     )    
     return Response({"Total": list(category_count)}, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
+@api_view(["GET"])
+def activity_project_count(request, activity_id):
+    try:
+        activity = (
+            Activity.objects
+            .filter(id=activity_id)
+            .annotate(project_count=Count("projects"))
+            .values("project_count")
+            .first()
+        )
+
+        if not activity:
+            return Response({"error": "Activity not found"}, status=404)
+
+        return Response(activity, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_projects(request):
     projects = Project.objects.all()
-    serializer = ProjectSerializer(projects, many=True)
+    serializer = GetProjectSerializer(projects, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_project(request, project_id):
     try:
@@ -38,15 +91,19 @@ def get_project(request, project_id):
     except Project.DoesNotExist:
         return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    serializer = ProjectSerializer(project)
+    serializer = GetProjectSerializer(project)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
-def get_categorys(request):
-    category = Category.objects.all()
-    serializer = CategorySerializer(category, many=True)
+def get_categories_by_activity(request, activity_id):
+    categories = Category.objects.filter(activity_id=activity_id)
+    serializer = GetCategorySerializer(categories, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_category(request, category_id):
     try:
@@ -54,9 +111,11 @@ def get_category(request, category_id):
     except Category.DoesNotExist:
         return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    serializer = CategorySerializer(category)
+    serializer = GetCategorySerializer(category)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_category_items(request):
      response = []
@@ -153,12 +212,16 @@ def get_category_items(request):
 
         return Response({"data": response}, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_members(request):
     members = Member.objects.all()
-    serializer = MemberSerializer(members, many=True)
+    serializer = GetMemberSerializer(members, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_member(request, member_id):
     try:
@@ -166,9 +229,11 @@ def get_member(request, member_id):
     except Member.DoesNotExist:
         return Response({"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    serializer = MemberSerializer(member)
+    serializer = GetMemberSerializer(member)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_me(request):
     voter_id = request.user.id
@@ -181,13 +246,16 @@ def get_me(request):
     serializer = VoterSerializer(voter)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_subcategories(request):
     subcategories = SubCategory.objects.all()
-    serializer = SubCategorySerializer(subcategories, many=True)
+    serializer = GetSubCategorySerializer(subcategories, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_subcategory(request, id):
     try:
@@ -195,9 +263,11 @@ def get_subcategory(request, id):
     except SubCategory.DoesNotExist:
         return Response({"error": "Subcategory not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = SubCategorySerializer(subcategory)
+    serializer = GetSubCategorySerializer(subcategory)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_members_by_category(request, category_id):
     try:
@@ -206,27 +276,53 @@ def get_members_by_category(request, category_id):
         return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
     
     members = Member.objects.filter(project__category=category)
-    serializer = MemberSerializer(members, many=True)
+    serializer = GetMemberSerializer(members, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_votes(request):
     votes = Vote.objects.all()
     serializer = VoteSerializer(votes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
 def get_activities(request):
     activitys = Activity.objects.all()
-    serializer = ActivitySerializer(activitys, many=True)
+    serializer = GetActivitySerializer(activitys, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@cache_page(60 * 5)
+@vary_on_cookie
 @api_view(['GET'])
-def get_activity(request, id):
+def get_activity(request, activity_id):
     try:
-        activity = Activity.objects.get(id=id)
+        activity = Activity.objects.get(id=activity_id)
     except Activity.DoesNotExist:
         return Response({"error": "Activity not found"}, status=status.HTTP_404_NOT_FOUND)
     
-    serializer = ActivitySerializer(activity)
+    serializer = GetActivitySerializer(activity)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@cache_page(60)
+@vary_on_cookie
+@api_view(["GET"])
+def top_projects(request):
+    projects = (
+        Project.objects
+        .annotate(vote_count=Count("vote", filter=Q(vote__project__isnull=False)))
+        .order_by("-vote_count")[:5]
+    )
+
+    data = [
+        {
+            "name": project.name,
+            "vote_count": project.vote_count
+        }
+        for project in projects
+    ]
+
+    return Response(data, status=status.HTTP_200_OK)

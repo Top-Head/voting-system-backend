@@ -103,3 +103,21 @@ def voter_login(request):
         "token": str(access_token),
         "email": voter.email
     }, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def voter_refresh_token(request):
+    refresh_token = request.data.get("refresh")
+
+    if not refresh_token:
+        return Response({"error": "Refresh token is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        refresh = RefreshToken(refresh_token)
+        access_token = refresh.access_token
+        return Response({
+            "access": str(access_token),
+            "refresh": str(refresh)
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": f"Invalid or expired refresh token: {e}"}, status=status.HTTP_401_UNAUTHORIZED)

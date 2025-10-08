@@ -4,9 +4,15 @@ from rest_framework.views import APIView
 from api.serializers import VoterSerializer
 from rest_framework.response import Response
 from api.features import generate_vote_ranking
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 from api.models import Project, Voter, Activity, SubCategory
 
 class VoterListView(APIView):
+    
+    @method_decorator(cache_page(60 * 3))
+    @method_decorator(vary_on_cookie)
     def get(self, request):
         try:
             voters = Voter.objects.all()
@@ -16,6 +22,9 @@ class VoterListView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RankingView(APIView):
+
+    @method_decorator(cache_page(60 * 3))
+    @method_decorator(vary_on_cookie)
     def get(self, request, activity_id):
 
         activites = Activity.objects.filter(id=activity_id).first()
@@ -31,6 +40,8 @@ class PublicRankingView(APIView):
     authentication_classes = []  
     permission_classes = []      
 
+    @method_decorator(cache_page(60 * 3))
+    @method_decorator(vary_on_cookie)
     def get(self, request, activity_id):
         activity = Activity.objects.filter(id=activity_id).first()
 
@@ -54,6 +65,9 @@ class VerifyActivity(APIView):
         return Response({"is_finished": activity.finished}, status=status.HTTP_200_OK)
 
 class SubcategoryProjectRankingView(APIView):
+
+    @method_decorator(cache_page(60 * 3))
+    @method_decorator(vary_on_cookie)
     def get(self, request, subcategory_id):
         try:
             subcategory = SubCategory.objects.get(id=subcategory_id)
