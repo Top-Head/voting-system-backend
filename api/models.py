@@ -49,7 +49,7 @@ class Project(models.Model):
     
 class Stand(models.Model):
     name = models.CharField(max_length=100)
-    stand_cover = models.ImageField(upload_to='midea/stand_cover/')
+    stand_cover = models.TextField(null=True)
     activity = models.ForeignKey('Activity', on_delete=models.CASCADE, related_name='stand')
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='stand')
 
