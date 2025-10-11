@@ -54,6 +54,7 @@ urlpatterns = [
     path('api/subcategoryProjectsRanking/<int:subcategory_id>/', views.ranking_view.SubcategoryProjectRankingView.as_view(), name='subcategory-project-ranking'),
     path('api/public-rankings/<int:activity_id>', views.ranking_view.PublicRankingView.as_view(), name='public_ranking_category'),
     path('api/verify-activity/<int:activity_id>', views.ranking_view.VerifyActivity.as_view(), name='verify_activity'),
+    path('api/winners', views.ranking_view.winners_view, name='winners_page'),
     #-------------------------------Vote View--------------------------------------------------------------
     path('api/vote', views.vote_view.vote, name='vote')
 ]
