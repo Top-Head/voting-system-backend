@@ -36,9 +36,13 @@ def register_voter(request):
         subject = "Verify Email"
         from_email = "omarscode007@gmail.com"
         to = voter.email
-        msg = EmailMessage(subject, html, from_email, [to])
+        msg = EmailMessage(subject, html, from_email, to)
         msg.content_subtype = 'html'
-        msg.send()
+        
+        try:
+            msg.send()
+        except Exception as e:
+             return Response({"error": f"Failed to send verification email: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         return Response({
             "message": "Voter registered successfully! Please check your email for verification code.",
