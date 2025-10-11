@@ -97,3 +97,78 @@ class SubcategoryProjectRankingView(APIView):
                 'members': members_data
             })
         return Response(data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def winners_view(request):
+    winners = []
+
+    project_votes = (
+        Vote.objects.filter(category_type='project')
+        .values('subcategory', 'project')
+        .annotate(total_votes=Count('id'))
+        .order_by('subcategory', '-total_votes')
+    )
+
+    seen_subs = set()
+    for vote in project_votes:
+        sub = vote['subcategory']
+        if sub not in seen_subs:
+            seen_subs.add(sub)
+            project = Project.objects.get(id=vote['project'])
+            winners.append({
+                "type": "project",
+                "subcategory": project.subcategory.name,
+                "name": project.name,
+                "votes": vote['total_votes'],
+                "members": [
+                    {
+                        "name": m.name,
+                        "classe": m.classe,
+                        "email": getattr(m, "email", None)  
+                    } for m in project.members.all()
+                ]
+            })
+
+    stand_votes = (
+        Vote.objects.filter(category_type='stand')
+        .values('subcategory', 'stand')
+        .annotate(total_votes=Count('id'))
+        .order_by('subcategory', '-total_votes')
+    )
+
+    seen_subs = set()
+    for vote in stand_votes:
+        sub = vote['subcategory']
+        if sub not in seen_subs:
+            seen_subs.add(sub)
+            stand = Stand.objects.get(id=vote['stand'])
+            winners.append({
+                "type": "stand",
+                "subcategory": stand.category.name,
+                "name": stand.name,
+                "votes": vote['total_votes']
+            })
+
+    member_votes = (
+        Vote.objects.filter(category_type='member')
+        .values('subcategory', 'member')
+        .annotate(total_votes=Count('id'))
+        .order_by('subcategory', '-total_votes')
+    )
+
+    seen_subs = set()
+    for vote in member_votes:
+        sub = vote['subcategory']
+        if sub not in seen_subs:
+            seen_subs.add(sub)
+            member = Member.objects.get(id=vote['member'])
+            winners.append({
+                "type": "member",
+                "subcategory": member.classe,
+                "name": member.name,
+                "votes": vote['total_votes'],
+                "classe": member.classe,
+                "course": member.course
+            })
+
+    return Response({"winners": winners})
