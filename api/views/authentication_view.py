@@ -36,7 +36,7 @@ def register_voter(request):
         subject = "Verify Email"
         from_email = "omarscode007@gmail.com"
         to = voter.email
-        msg = EmailMessage(subject, html, from_email, to)
+        msg = EmailMessage(subject, html, from_email, [to])
         msg.content_subtype = 'html'
         
         try:
