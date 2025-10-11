@@ -48,6 +48,7 @@ urlpatterns = [
     path('api/get-top-projects', views.get_view.top_projects, name='top_projects'),
     path('api/count-project-in-activity/<int:activity_id>', views.get_view.activity_project_count, name='count_project_activity'),
     path('api/get-me', views.get_view.get_me, name='get_voter'),
+    path('api/get-members-by-subcategory/<int:subcategory_id>', views.get_view.get_members_by_subcategory, name='member-by-subcat'),
     #------------------------------------ Ranking View---------------------------------------------------
     path('api/get-voters/', views.ranking_view.VoterListView.as_view(), name='get_voters'),
     path('api/get-rankings/<int:activity_id>', views.ranking_view.RankingView.as_view(), name='get_ranking_category'),
