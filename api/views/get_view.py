@@ -326,3 +326,22 @@ def top_projects(request):
     ]
 
     return Response(data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_members_by_subcategory(request, subcategory_id):
+    try:
+        members = Member.objects.filter(subcategory_id=subcategory_id)
+        if not members.exists():
+            return Response(
+                {"message": "Nenhum membro encontrado para esta subcategoria."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = GetMemberSerializer(members, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(
+            {"error": f"Erro ao buscar membros: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
