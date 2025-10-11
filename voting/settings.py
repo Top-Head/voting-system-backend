@@ -66,13 +66,9 @@ AUTH_USER_MODEL = 'api.Voter'
 
 ADMIN_CODE = 'CODE'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com' 
-EMAIL_PORT = 587  
-EMAIL_USE_TLS = True 
-EMAIL_HOST_USER = 'omarscode007@gmail.com'
-EMAIL_HOST_PASSWORD = 'bzsd ihqb vqkq nbov'  
-EMAIL_USE_SSL = False  
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+DEFAULT_FROM_EMAIL = "omarscode007@gmail.com"
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
