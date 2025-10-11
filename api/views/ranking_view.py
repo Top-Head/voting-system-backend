@@ -1,6 +1,7 @@
 from rest_framework import status
 from django.db.models import Count
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from api.serializers import VoterSerializer
 from rest_framework.response import Response
 from api.features import generate_vote_ranking
