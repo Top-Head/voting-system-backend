@@ -66,9 +66,19 @@ AUTH_USER_MODEL = 'api.Voter'
 
 ADMIN_CODE = 'CODE'
 
-EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 DEFAULT_FROM_EMAIL = "omarscode007@gmail.com"
+
+if SENDGRID_API_KEY:
+    try:
+        import sendgrid_backend   
+        EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+        SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+        SENDGRID_ECHO_TO_STDOUT = False
+    except ImportError:
+        EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

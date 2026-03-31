@@ -101,7 +101,7 @@ paths:
                   type: integer
                 members:
                   type: string
-                  description: JSON string com lista de membros (ex: '[{"name":"João","classe":"A","turma":"101","course":"Engenharia"}]')
+                  description: 'JSON string com lista de membros (ex: ''[{"name":"João","classe":"A","turma":"101","course":"Engenharia"}]'')'
                 project_cover:
                   type: string
                   format: binary
