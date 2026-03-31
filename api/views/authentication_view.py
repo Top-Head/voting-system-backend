@@ -1,15 +1,19 @@
 import random
 import string
+import logging
 from api.models import Voter
 from rest_framework import status
 from django.utils import timezone
 from django.core.mail import EmailMessage
+from django.conf import settings
 from api.serializers import VoterSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.template.loader import render_to_string
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
+
+logger = logging.getLogger(__name__)
 
 
 @api_view(['POST'])
@@ -34,15 +38,17 @@ def register_voter(request):
         
         html = render_to_string("email_verify.html", {"code": code})
         subject = "Verify Email"
-        from_email = "omarscode007@gmail.com"
+        from_email = settings.DEFAULT_FROM_EMAIL
         to = voter.email
         msg = EmailMessage(subject, html, from_email, [to])
         msg.content_subtype = 'html'
         
         try:
-            msg.send()
+            sent = msg.send()
+            logger.info(f"Email sent successfully to {voter.email} (sent count: {sent})")
         except Exception as e:
-             return Response({"error": f"Failed to send verification email: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Failed to send verification email to {voter.email}: {str(e)}", exc_info=True)
+            return Response({"error": f"Failed to send verification email: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         return Response({
             "message": "Voter registered successfully! Please check your email for verification code.",
