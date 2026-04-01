@@ -10,113 +10,401 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ("auth", "0012_alter_user_first_name_max_length"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Activity',
+            name="Activity",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField()),
-                ('finished', models.BooleanField(default=False)),
-                ('start_date', models.DateField(blank=True, null=True)),
-                ('end_date', models.DateField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField()),
+                ("finished", models.BooleanField(default=False)),
+                ("start_date", models.DateField(blank=True, null=True)),
+                ("end_date", models.DateField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Voter',
+            name="Voter",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('name', models.CharField(max_length=255)),
-                ('email', models.EmailField(max_length=254, unique=True)),
-                ('verification_code', models.CharField(blank=True, max_length=6, null=True)),
-                ('code_generated_at', models.DateTimeField(blank=True, null=True)),
-                ('is_active', models.BooleanField(default=False)),
-                ('is_staff', models.BooleanField(default=False)),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
-                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "is_superuser",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates that this user has all permissions without explicitly assigning them.",
+                        verbose_name="superuser status",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("email", models.EmailField(max_length=254, unique=True)),
+                (
+                    "verification_code",
+                    models.CharField(blank=True, max_length=6, null=True),
+                ),
+                ("code_generated_at", models.DateTimeField(blank=True, null=True)),
+                ("is_active", models.BooleanField(default=False)),
+                ("is_staff", models.BooleanField(default=False)),
+                (
+                    "groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.group",
+                        verbose_name="groups",
+                    ),
+                ),
+                (
+                    "user_permissions",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Specific permissions for this user.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.permission",
+                        verbose_name="user permissions",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('category_type', models.CharField(choices=[('stand', 'Stand'), ('member', 'Membros'), ('project', 'Projeto')], max_length=100)),
-                ('activity', models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, related_name='categories', to='api.activity')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "category_type",
+                    models.CharField(
+                        choices=[
+                            ("stand", "Stand"),
+                            ("member", "Membros"),
+                            ("project", "Projeto"),
+                        ],
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "activity",
+                    models.ForeignKey(
+                        default=None,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="categories",
+                        to="api.activity",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Stand',
+            name="Stand",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('stand_cover', models.TextField(null=True)),
-                ('activity', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='stand', to='api.activity')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='stand', to='api.category')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("stand_cover", models.TextField(null=True)),
+                (
+                    "activity",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="stand",
+                        to="api.activity",
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="stand",
+                        to="api.category",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SubCategory',
+            name="SubCategory",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('activity', models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, related_name='subcategories', to='api.activity')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subcategories', to='api.category')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "activity",
+                    models.ForeignKey(
+                        default=None,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="subcategories",
+                        to="api.activity",
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="subcategories",
+                        to="api.category",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Project',
+            name="Project",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('description', models.TextField(null=True)),
-                ('project_cover', models.TextField(null=True)),
-                ('activity', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='projects', to='api.activity')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='projects', to='api.category')),
-                ('subcategory', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='projects', to='api.subcategory')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                ("description", models.TextField(null=True)),
+                ("project_cover", models.TextField(null=True)),
+                (
+                    "activity",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="projects",
+                        to="api.activity",
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="projects",
+                        to="api.category",
+                    ),
+                ),
+                (
+                    "subcategory",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="projects",
+                        to="api.subcategory",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Member',
+            name="Member",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('classe', models.CharField(choices=[('1ª', '1ª'), ('2ª', '2ª'), ('3ª', '3ª'), ('4ª', '4ª'), ('5ª', '5ª'), ('6ª', '6ª'), ('7ª', '7ª'), ('8ª', '8ª'), ('9ª', '9ª'), ('10ª', '10ª'), ('11ª', '11ª'), ('12ª', '12ª'), ('13ª', '13ª')], max_length=3)),
-                ('turma', models.CharField(max_length=2)),
-                ('profile_image', models.TextField()),
-                ('course', models.CharField(blank=True, choices=[('Informática', 'Informática'), ('Eletrônica', 'Eletrônica'), ('N/A', 'N/A')], max_length=20, null=True)),
-                ('activity', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='members', to='api.activity')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='members', to='api.category')),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='members', to='api.project')),
-                ('subcategory', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='members', to='api.subcategory')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "classe",
+                    models.CharField(
+                        choices=[
+                            ("1ª", "1ª"),
+                            ("2ª", "2ª"),
+                            ("3ª", "3ª"),
+                            ("4ª", "4ª"),
+                            ("5ª", "5ª"),
+                            ("6ª", "6ª"),
+                            ("7ª", "7ª"),
+                            ("8ª", "8ª"),
+                            ("9ª", "9ª"),
+                            ("10ª", "10ª"),
+                            ("11ª", "11ª"),
+                            ("12ª", "12ª"),
+                            ("13ª", "13ª"),
+                        ],
+                        max_length=3,
+                    ),
+                ),
+                ("turma", models.CharField(max_length=2)),
+                ("profile_image", models.TextField()),
+                (
+                    "course",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("Informática", "Informática"),
+                            ("Eletrônica", "Eletrônica"),
+                            ("N/A", "N/A"),
+                        ],
+                        max_length=20,
+                        null=True,
+                    ),
+                ),
+                (
+                    "activity",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="members",
+                        to="api.activity",
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="members",
+                        to="api.category",
+                    ),
+                ),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="members",
+                        to="api.project",
+                    ),
+                ),
+                (
+                    "subcategory",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="members",
+                        to="api.subcategory",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Vote',
+            name="Vote",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('category_type', models.CharField(choices=[('stand', 'Stand'), ('member', 'Membro'), ('project', 'Projeto')], max_length=100)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('activity', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.activity')),
-                ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.category')),
-                ('member', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.member')),
-                ('project', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.project')),
-                ('stand', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.stand')),
-                ('subcategory', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.subcategory')),
-                ('voter', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "category_type",
+                    models.CharField(
+                        choices=[
+                            ("stand", "Stand"),
+                            ("member", "Membro"),
+                            ("project", "Projeto"),
+                        ],
+                        max_length=100,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "activity",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.activity"
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.category",
+                    ),
+                ),
+                (
+                    "member",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.member",
+                    ),
+                ),
+                (
+                    "project",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.project",
+                    ),
+                ),
+                (
+                    "stand",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.stand",
+                    ),
+                ),
+                (
+                    "subcategory",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.subcategory",
+                    ),
+                ),
+                (
+                    "voter",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('voter', 'subcategory', 'category')},
+                "unique_together": {("voter", "subcategory", "category")},
             },
         ),
     ]

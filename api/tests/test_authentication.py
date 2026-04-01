@@ -4,7 +4,7 @@ from rest_framework.test import APIClient
 from django.utils import timezone
 from rest_framework import status
 from unittest.mock import patch
-from api.models import Voter  
+from api.models import Voter
 
 
 @pytest.mark.django_db
@@ -13,12 +13,12 @@ class TestRegisterVoter:
         self.client = APIClient()
         self.url = reverse("register_voter")
 
-    @patch("django.core.mail.EmailMessage.send")  
+    @patch("django.core.mail.EmailMessage.send")
     def test_register_success(self, mock_send):
         data = {
             "name": "Omar",
             "email": "omar@example.com",
-            "password": "strongpassword123"
+            "password": "strongpassword123",
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -30,7 +30,7 @@ class TestRegisterVoter:
         mock_send.assert_called_once()
 
     def test_missing_fields(self):
-        data = {"email": "omar@example.com"} 
+        data = {"email": "omar@example.com"}
         response = self.client.post(self.url, data, format="json")
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -38,14 +38,12 @@ class TestRegisterVoter:
 
     def test_duplicate_email(self):
         Voter.objects.create(
-            name="Test",
-            email="omar@example.com",
-            password="hashedpass"
+            name="Test", email="omar@example.com", password="hashedpass"
         )
         data = {
             "name": "Omar",
             "email": "omar@example.com",
-            "password": "strongpassword123"
+            "password": "strongpassword123",
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -65,13 +63,10 @@ class TestVerifyEmail:
             email="omar@example.com",
             password="hashedpass",
             verification_code="OMAR07",
-            code_generated_at=timezone.now()
+            code_generated_at=timezone.now(),
         )
 
-        data = {
-            "email": "omar@example.com",
-            "code": "OMAR07"
-        }
+        data = {"email": "omar@example.com", "code": "OMAR07"}
 
         response = self.client.post(self.url, data, format="json")
 
@@ -87,13 +82,10 @@ class TestVerifyEmail:
             email="omar@example.com",
             verification_code="OMAR07",
             code_generated_at=timezone.now(),
-            is_active=False
+            is_active=False,
         )
 
-        data = {
-            "email": "omar@example.com",
-            "code": "WRONGCODE"
-        }
+        data = {"email": "omar@example.com", "code": "WRONGCODE"}
 
         response = self.client.post(self.url, data, format="json")
 
@@ -115,15 +107,12 @@ class TestLogin:
         voter = Voter.objects.create(
             name="Omar",
             email="omar@example.com",
-            is_active=True, 
+            is_active=True,
         )
-        voter.set_password("Code2007")  
+        voter.set_password("Code2007")
         voter.save()
 
-        data = {
-            "email": "omar@example.com",
-            "password": "Code2007"
-        }
+        data = {"email": "omar@example.com", "password": "Code2007"}
 
         response = self.client.post(self.url, data, format="json")
 

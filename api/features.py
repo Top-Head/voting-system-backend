@@ -2,12 +2,13 @@ from django.db.models import Count, F, Value
 from django.db.models import CharField
 from api.models import Vote
 
+
 def generate_vote_ranking(activity_id):
     results = []
 
     activity_votes = Vote.objects.filter(activity=activity_id)
 
-    vote_targets = ['stand', 'member', 'project']
+    vote_targets = ["stand", "member", "project"]
 
     for target in vote_targets:
         votes = activity_votes.filter(**{f"{target}__isnull": False})
@@ -86,19 +87,21 @@ def generate_vote_ranking(activity_id):
                     "category": vote["alias_cat_name"],
                     "subcategory": vote["alias_subcat_name"],
                     "category_type": vote["alias_cat_type"],
-                    "ranking": []
+                    "ranking": [],
                 }
 
-            grouped[key]["ranking"].append({
-                "id": vote["id"],
-                "name": vote["name"],
-                "cover": vote.get("cover"),
-                "profile_image": vote.get("profile_image"),
-                "grade": vote.get("grade"),
-                "group": vote.get("group"),
-                "course": vote.get("course"),
-                "total_votes": vote["alias_total_votes"]
-            })
+            grouped[key]["ranking"].append(
+                {
+                    "id": vote["id"],
+                    "name": vote["name"],
+                    "cover": vote.get("cover"),
+                    "profile_image": vote.get("profile_image"),
+                    "grade": vote.get("grade"),
+                    "group": vote.get("group"),
+                    "course": vote.get("course"),
+                    "total_votes": vote["alias_total_votes"],
+                }
+            )
 
         results.extend(grouped.values())
 
