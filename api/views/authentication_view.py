@@ -1,21 +1,15 @@
 import random
 import string
-import logging
 from api.models import Voter
 from rest_framework import status
 from django.utils import timezone
-from django.conf import settings
 from api.services.brevo import send_verification_email
-from sib_api_v3_sdk.rest import ApiException
 from api.constant import INVALID_DOMAINS
 from api.serializers import VoterSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
-
-logger = logging.getLogger(__name__)
-
 
 @api_view(["POST"])
 def register_voter(request):

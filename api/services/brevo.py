@@ -3,6 +3,9 @@ from django.conf import settings
 from django.template.loader import render_to_string
 
 def send_verification_email(email, code):
+    if not settings.BREVO_API_KEY:
+        raise ValueError("BREVO_API_KEY is not configured")
+
     configuration = sib_api_v3_sdk.Configuration()
     configuration.api_key['api-key'] = settings.BREVO_API_KEY
 
