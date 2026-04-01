@@ -4,13 +4,13 @@ import logging
 from api.models import Voter
 from rest_framework import status
 from django.utils import timezone
-from django.core.mail import EmailMessage
 from django.conf import settings
+from api.services.brevo import send_verification_email
+from sib_api_v3_sdk.rest import ApiException
 from api.constant import INVALID_DOMAINS
 from api.serializers import VoterSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from django.template.loader import render_to_string
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password, check_password
 
@@ -51,26 +51,12 @@ def register_voter(request):
         voter.code_generated_at = timezone.now()
         voter.save()
 
-        html = render_to_string("email_verify.html", {"code": code})
-        subject = "Verify Email"
-        from_email = settings.DEFAULT_FROM_EMAIL
-        to = voter.email
-        msg = EmailMessage(subject, html, from_email, [to])
-        msg.content_subtype = "html"
-
         try:
-            sent = msg.send()
-            logger.info(
-                f"Email sent successfully to {voter.email} (sent count: {sent})"
-            )
+            send_verification_email(voter.email, code)
         except Exception as e:
-            logger.error(
-                f"Failed to send verification email to {voter.email}: {str(e)}",
-                exc_info=True,
-            )
             return Response(
-                {"error": f"Failed to send verification email: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
         return Response(

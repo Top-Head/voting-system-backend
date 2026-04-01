@@ -70,6 +70,8 @@ ADMIN_CODE = "CODE"
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 DEFAULT_FROM_EMAIL = "omarscode007@gmail.com"
 
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+
 if SENDGRID_API_KEY:
     try:
         import sendgrid_backend
