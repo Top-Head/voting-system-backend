@@ -2,10 +2,11 @@ from api import models
 from rest_framework import status
 from django.db.models import Count, Q
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
-from api.models import Category, Project, Voter, Vote, Member, Activity, SubCategory, Stand
+from rest_framework.decorators import api_view, permission_classes
+from api.models import Category, Project, Vote, Member, Activity, SubCategory, Stand
 from api.serializers import GetActivitySerializer, GetCategorySerializer, GetMemberSerializer, GetProjectSerializer, GetSubCategorySerializer, VoterSerializer, VoteSerializer
 
 @cache_page(60 * 5)
@@ -232,19 +233,11 @@ def get_member(request, member_id):
     serializer = GetMemberSerializer(member)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-@cache_page(60 * 5)
-@vary_on_cookie
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_me(request):
-    voter_id = request.user.id
-
-    try:
-        voter = Voter.objects.get(id=voter_id)
-    except Voter.DoesNotExist:
-        return Response({"error": "Voter not found"}, status=status.HTTP_404_NOT_FOUND)
-    
-    serializer = VoterSerializer(voter)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    serializer = VoterSerializer(request.user)
+    return Response(serializer.data)
 
 @cache_page(60 * 5)
 @vary_on_cookie
