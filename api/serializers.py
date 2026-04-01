@@ -105,23 +105,20 @@ class GetProjectSerializer(serializers.ModelSerializer):
 
 
 class GetSubCategorySerializer(serializers.ModelSerializer):
-    projects = ProjectSerializer(many=True, read_only=True)
 
     class Meta:
         model = SubCategory
-        fields = ["id", "name", "projects"]
+        fields = ["id", "name"]
 
 
 class GetCategorySerializer(serializers.ModelSerializer):
-    subcategories = SubCategorySerializer(many=True, read_only=True)
 
     class Meta:
         model = Category
-        fields = ["id", "name", "category_type", "subcategories"]
+        fields = ["id", "name", "category_type"]
 
 
 class GetActivitySerializer(serializers.ModelSerializer):
-    categories = CategorySerializer(many=True)
     start_date = serializers.DateField(
         format="%d-%m-%Y", input_formats=["%d-%m-%Y"], required=False
     )
@@ -131,4 +128,4 @@ class GetActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Activity
-        fields = ["id", "name", "description", "start_date", "end_date", "categories"]
+        fields = ["id", "name", "description", "start_date", "end_date"]
