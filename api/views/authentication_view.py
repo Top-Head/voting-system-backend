@@ -111,34 +111,35 @@ def voter_login(request):
 
     if not email or not password:
         return Response(
-            {"error": "Email and password required"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Email and password required"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
-    try:
-        voter = Voter.objects.get(email=email)
-    except Voter.DoesNotExist:
-        return Response(
-            {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
-        )
+    voter = (
+        Voter.objects
+        .only("id", "email", "password", "is_active")
+        .filter(email=email)
+        .first()
+    )
 
-    if voter.is_active == False:
+    if not voter or not voter.is_active or not voter.check_password(password):
         return Response(
-            {"error": "Your account is inative, verify your account first"},
+            {"error": "Invalid credentials"},
             status=status.HTTP_401_UNAUTHORIZED,
-        )
-
-    if not check_password(password, voter.password):
-        return Response(
-            {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
         )
 
     refresh = RefreshToken.for_user(voter)
     refresh["email"] = voter.email
+
     access_token = refresh.access_token
     access_token["email"] = voter.email
 
     return Response(
-        {"refresh": str(refresh), "token": str(access_token), "email": voter.email},
+        {
+            "refresh": str(refresh),
+            "token": str(access_token),
+            "email": voter.email,
+        },
         status=status.HTTP_200_OK,
     )
 

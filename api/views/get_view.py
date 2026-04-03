@@ -148,6 +148,13 @@ def get_category_items(request):
     category_type = request.GET.get("cat_tp", "")
     activity_id = int(request.GET.get("act_id", 0))
 
+    print("get_category_items called", {
+        "cat_id": category_id,
+        "subcat_id": subcategory_id,
+        "cat_tp": category_type,
+        "act_id": activity_id,
+    })
+
     if not request.user.is_authenticated:
         return Response(
             {"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED
@@ -155,118 +162,206 @@ def get_category_items(request):
 
     user = request.user
     activity = Activity.objects.filter(id=activity_id).first()
+    if not activity:
+        print("get_category_items error: activity not found", activity_id)
+        return Response(
+            {"error": "Activity not found."}, status=status.HTTP_404_NOT_FOUND
+        )
 
-    if category_id and subcategory_id:
-        if category_type == "project":
-            projects = Project.objects.filter(
-                subcategory__id=subcategory_id, activity__id=activity.id
+    category = Category.objects.filter(id=category_id, activity=activity).first()
+    if not category:
+        print("get_category_items error: category not found", category_id, activity_id)
+        return Response(
+            {"error": "Category not found for activity."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    subcategory = None
+    if subcategory_id:
+        subcategory = SubCategory.objects.filter(id=subcategory_id, category=category).first()
+        if not subcategory:
+            subcategories_in_cat = list(
+                SubCategory.objects.filter(category=category).order_by("id")
             )
-
-            for proj in projects:
-                has_voted = Vote.objects.filter(
-                    voter=user,
-                    category__id=category_id,
-                    subcategory__id=subcategory_id,
-                    project=proj,
-                    activity__id=activity.id,
-                ).exists()
-                response.append(
-                    {
-                        "id": proj.id,
-                        "name": proj.name.encode("utf-8"),
-                        "cover": None,
-                        "activity": proj.activity.name.encode("utf-8"),
-                        "classe": None,
-                        "turma": None,
-                        "course": None,
-                        "has_voted": has_voted,
-                    }
+            if 1 <= subcategory_id <= len(subcategories_in_cat):
+                subcategory = subcategories_in_cat[subcategory_id - 1]
+                print(
+                    "get_category_items notice: subcat_id interpreted as index, mapped",
+                    subcategory_id,
+                    "->",
+                    subcategory.id,
+                )
+            else:
+                print(
+                    "get_category_items error: subcategory not found for category",
+                    category_id,
+                    subcategory_id,
+                )
+                return Response(
+                    {"error": "Subcategory not found for this category."},
+                    status=status.HTTP_404_NOT_FOUND,
                 )
 
-        elif category_type == "member":
-            members = Member.objects.filter(
-                subcategory__id=subcategory_id, activity__id=activity.id
-            )
+    def get_cover(value):
+        if not value:
+            return None
+        if hasattr(value, "url"):
+            try:
+                return value.url
+            except Exception as e:
+                print("get_cover warning url failed", e)
+        return str(value)
 
-            for member in members:
-                has_voted = Vote.objects.filter(
-                    voter=user,
-                    category__id=category_id,
-                    subcategory__id=subcategory_id,
-                    member=member,
-                    activity__id=activity.id,
-                ).exists()
-                response.append(
-                    {
-                        "id": member.id,
-                        "name": member.name.encode("utf-8"),
-                        "cover": member.profile_image.url,
-                        "classe": member.classe.encode("utf-8"),
-                        "turma": member.turma,
-                        "course": member.course.encode("utf-8"),
-                        "activity": member.activity.name.encode("utf-8"),
-                        "type": category_type,
-                        "has_voted": has_voted,
-                    }
+    try:
+        if category_id and subcategory:
+            if category_type == "project":
+                projects = Project.objects.filter(
+                    subcategory=subcategory, activity__id=activity.id
                 )
+
+                for proj in projects:
+                    has_voted = Vote.objects.filter(
+                        voter=user,
+                        category__id=category_id,
+                        subcategory__id=subcategory_id,
+                        project=proj,
+                        activity__id=activity.id,
+                    ).exists()
+                    response.append(
+                        {
+                            "id": proj.id,
+                            "name": proj.name or "",
+                            "cover": get_cover(proj.project_cover),
+                            "activity": proj.activity.name if proj.activity else "",
+                            "classe": None,
+                            "turma": None,
+                            "course": None,
+                            "has_voted": has_voted,
+                        }
+                    )
+
+            elif category_type in ["member", "members"]:
+                if subcategory:
+                    members = Member.objects.filter(
+                        subcategory=subcategory, activity__id=activity.id
+                    )
+                else:
+                    members = Member.objects.filter(
+                        category=category, activity__id=activity.id
+                    )
+
+                for member in members:
+                    has_voted = Vote.objects.filter(
+                        voter=user,
+                        category__id=category_id,
+                        subcategory__id=subcategory_id,
+                        member=member,
+                        activity__id=activity.id,
+                    ).exists()
+                    response.append(
+                        {
+                            "id": member.id,
+                            "name": member.name or "",
+                            "cover": get_cover(member.profile_image),
+                            "classe": member.classe or "",
+                            "turma": member.turma or "",
+                            "course": member.course or "",
+                            "activity": member.activity.name if member.activity else "",
+                            "type": category_type,
+                            "has_voted": has_voted,
+                        }
+                    )
+
+            return Response({"data": response}, status=status.HTTP_200_OK)
+
+        elif category_id:
+            if category_type in ["member", "members"]:
+                members = Member.objects.filter(
+                    category__id=category_id, activity__id=activity.id
+                )
+
+                for member in members:
+                    has_voted = Vote.objects.filter(
+                        voter=user,
+                        category__id=category_id,
+                        member=member,
+                        activity__id=activity.id,
+                    ).exists()
+                    response.append(
+                        {
+                            "id": member.id,
+                            "name": member.name or "",
+                            "cover": get_cover(member.profile_image),
+                            "classe": member.classe or "",
+                            "turma": member.turma or "",
+                            "course": member.course or "",
+                            "activity": member.activity.name if member.activity else "",
+                            "type": category_type,
+                            "has_voted": has_voted,
+                        }
+                    )
+
+            elif category_type == "stand":
+                stands = Stand.objects.filter(
+                    category__id=category_id, activity__id=activity.id
+                )
+
+                for stand in stands:
+                    has_voted = Vote.objects.filter(
+                        voter=user,
+                        category__id=category_id,
+                        stand=stand,
+                        activity__id=activity.id,
+                    ).exists()
+                    response.append(
+                        {
+                            "id": stand.id,
+                            "name": stand.name or "",
+                            "cover": get_cover(stand.stand_cover),
+                            "activity": stand.activity.name if stand.activity else "",
+                            "type": category_type,
+                            "classe": None,
+                            "turma": None,
+                            "course": None,
+                            "has_voted": has_voted,
+                        }
+                    )
+
+            elif category_type == "project":
+                projects = Project.objects.filter(
+                    category__id=category_id, activity__id=activity.id
+                )
+
+                for proj in projects:
+                    has_voted = Vote.objects.filter(
+                        voter=user,
+                        category__id=category_id,
+                        project=proj,
+                        activity__id=activity.id,
+                    ).exists()
+                    response.append(
+                        {
+                            "id": proj.id,
+                            "name": proj.name or "",
+                            "cover": get_cover(proj.project_cover),
+                            "activity": proj.activity.name if proj.activity else "",
+                            "classe": None,
+                            "turma": None,
+                            "course": None,
+                            "has_voted": has_voted,
+                        }
+                    )
+
+            return Response({"data": response}, status=status.HTTP_200_OK)
 
         return Response({"data": response}, status=status.HTTP_200_OK)
 
-    elif category_id:
-        if category_type == "member":
-            members = Member.objects.filter(
-                category__id=category_id, activity__id=activity.id
-            )
-
-            for member in members:
-                has_voted = Vote.objects.filter(
-                    voter=user,
-                    category__id=category_id,
-                    member=member,
-                    activity__id=activity.id,
-                ).exists()
-                response.append(
-                    {
-                        "id": member.id,
-                        "name": member.name.encode("utf-8"),
-                        "cover": member.profile_image.url,
-                        "classe": member.classe.encode("utf-8"),
-                        "turma": member.turma,
-                        "course": member.course.encode("utf-8"),
-                        "activity": member.activity.name.encode("utf-8"),
-                        "type": category_type,
-                        "has_voted": has_voted,
-                    }
-                )
-
-        elif category_type == "stand":
-            stands = Stand.objects.filter(
-                category__id=category_id, activity__id=activity.id
-            )
-
-            for stand in stands:
-                has_voted = Vote.objects.filter(
-                    voter=user,
-                    category__id=category_id,
-                    stand=stand,
-                    activity__id=activity.id,
-                ).exists()
-                response.append(
-                    {
-                        "id": stand.id,
-                        "name": stand.name.encode("utf-8"),
-                        "cover": stand.stand_cover.url,
-                        "activity": stand.activity.name.encode("utf-8"),
-                        "type": category_type,
-                        "classe": None,
-                        "turma": None,
-                        "course": None,
-                        "has_voted": has_voted,
-                    }
-                )
-
-        return Response({"data": response}, status=status.HTTP_200_OK)
-
+    except Exception as e:
+        print("get_category_items failed", str(e))
+        return Response(
+            {"error": "Internal Server Error", "details": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 @cache_page(60 * 5)
 @vary_on_cookie
@@ -300,10 +395,24 @@ def get_me(request):
 @cache_page(60 * 5)
 @vary_on_cookie
 @api_view(["GET"])
-def get_subcategories(request):
-    subcategories = SubCategory.objects.all()
-    serializer = GetSubCategorySerializer(subcategories, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+def get_subcategories(request, category_id, activity_id):
+    try:
+        subcategories = SubCategory.objects.filter(
+            category_id=category_id,
+            activity_id=activity_id
+        )
+        if not subcategories.exists():
+            return Response(
+                {"message": "Nenhuma subcategoria encontrada"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = GetSubCategorySerializer(subcategories, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @cache_page(60 * 5)

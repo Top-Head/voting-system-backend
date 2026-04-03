@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APITestCase, APIClient
 from api.models import (
     Activity,
     Category,
@@ -14,10 +14,9 @@ from api.models import (
 )
 
 
-@pytest.mark.django_db
-class TestVoteEndpoint:
+class TestVoteEndpoint(APITestCase):
 
-    def setup_method(self):
+    def setUp(self):
         self.client = APIClient()
         self.voter = Voter.objects.create_user(
             email="omar@example.com", password="Code2007", name="Omar", is_active=True
