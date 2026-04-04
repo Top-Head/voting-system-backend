@@ -223,7 +223,7 @@ def get_category_items(request):
                     has_voted = Vote.objects.filter(
                         voter=user,
                         category__id=category_id,
-                        subcategory__id=subcategory_id,
+                        subcategory=subcategory,
                         project=proj,
                         activity__id=activity.id,
                     ).exists()
@@ -254,7 +254,7 @@ def get_category_items(request):
                     has_voted = Vote.objects.filter(
                         voter=user,
                         category__id=category_id,
-                        subcategory__id=subcategory_id,
+                        subcategory=subcategory, 
                         member=member,
                         activity__id=activity.id,
                     ).exists()
