@@ -8,7 +8,7 @@ from api.features import generate_vote_ranking
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
-from api.models import Project, Voter, Activity, SubCategory
+from api.models import Project, Voter, Activity, SubCategory, Vote, Stand, Member
 
 
 class VoterListView(APIView):
