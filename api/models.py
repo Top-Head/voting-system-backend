@@ -17,6 +17,9 @@ class Activity(models.Model):
     end_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Category(models.Model):
     CHOOSE_TYPE = [("stand", "Stand"), ("member", "Membros"), ("project", "Projeto")]
