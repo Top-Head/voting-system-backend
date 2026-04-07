@@ -7,6 +7,8 @@ from django.contrib.auth.models import (
 
 
 # Create your models here.
+from django.db import models
+
 class Activity(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -15,53 +17,40 @@ class Activity(models.Model):
     end_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.name
-
 
 class Category(models.Model):
     CHOOSE_TYPE = [("stand", "Stand"), ("member", "Membros"), ("project", "Projeto")]
-
     name = models.CharField(max_length=100)
-    activity = models.ForeignKey(
-        "Activity", on_delete=models.CASCADE, related_name="categories", default=None
-    )
+    activity = models.ForeignKey("Activity", on_delete=models.CASCADE, related_name="categories", default=None)
     category_type = models.CharField(max_length=100, choices=CHOOSE_TYPE)
-
-    def __str__(self):
-        return self.name
-
 
 class SubCategory(models.Model):
     name = models.CharField(max_length=100)
-    activity = models.ForeignKey(
-        "Activity", on_delete=models.CASCADE, related_name="subcategories", default=None
-    )
-    category = models.ForeignKey(
-        "Category", on_delete=models.CASCADE, related_name="subcategories"
-    )
-
-    def __str__(self):
-        return self.name
-
+    activity = models.ForeignKey("Activity", on_delete=models.CASCADE, related_name="subcategories", default=None)
+    category = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="subcategories")
 
 class Project(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField(null=True)
-    activity = models.ForeignKey(
-        "Activity", on_delete=models.CASCADE, related_name="projects"
-    )
-    category = models.ForeignKey(
-        "Category", on_delete=models.CASCADE, related_name="projects"
-    )
+    activity = models.ForeignKey("Activity", on_delete=models.CASCADE, related_name="projects")
+    category = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="projects")
+    subcategory = models.ForeignKey("SubCategory", on_delete=models.CASCADE, related_name="projects")
     project_cover = models.TextField(null=True)
-    subcategory = models.ForeignKey(
-        "SubCategory", on_delete=models.CASCADE, related_name="projects"
-    )
+
+class Member(models.Model):
+    CLASS_CHOICES = [("1ª", "1ª"), ("2ª", "2ª"), ("3ª", "3ª"), ("4ª", "4ª"), ("5ª", "5ª"), ("6ª", "6ª"), ("7ª", "7ª"), ("8ª", "8ª"), ("9ª", "9ª"), ("10ª", "10ª"), ("11ª", "11ª"), ("12ª", "12ª"), ("13ª", "13ª")]
+    COURSE_CHOICES = [("Informática", "Informática"), ("Eletrônica", "Eletrônica"), ("N/A", "N/A")]
+
+    activity = models.ForeignKey("Activity", on_delete=models.CASCADE, related_name="members")
+    project = models.ForeignKey("Project", on_delete=models.CASCADE, related_name="members")
+
+    name = models.CharField(max_length=100)
+    classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
+    turma = models.CharField(max_length=2)
+    profile_image = models.TextField(null=False)
+    course = models.CharField(max_length=20, choices=COURSE_CHOICES, null=True, blank=True)
 
     def __str__(self):
         return self.name
-
 
 class Stand(models.Model):
     name = models.CharField(max_length=100)
@@ -71,53 +60,6 @@ class Stand(models.Model):
     )
     category = models.ForeignKey(
         "Category", on_delete=models.CASCADE, related_name="stand"
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class Member(models.Model):
-    CLASS_CHOICES = [
-        ("1ª", "1ª"),
-        ("2ª", "2ª"),
-        ("3ª", "3ª"),
-        ("4ª", "4ª"),
-        ("5ª", "5ª"),
-        ("6ª", "6ª"),
-        ("7ª", "7ª"),
-        ("8ª", "8ª"),
-        ("9ª", "9ª"),
-        ("10ª", "10ª"),
-        ("11ª", "11ª"),
-        ("12ª", "12ª"),
-        ("13ª", "13ª"),
-    ]
-
-    COURSE_CHOICES = [
-        ("Informática", "Informática"),
-        ("Eletrônica", "Eletrônica"),
-        ("N/A", "N/A"),
-    ]
-
-    activity = models.ForeignKey(
-        "Activity", on_delete=models.CASCADE, related_name="members"
-    )
-    project = models.ForeignKey(
-        "Project", on_delete=models.CASCADE, related_name="members"
-    )
-    category = models.ForeignKey(
-        "Category", on_delete=models.CASCADE, related_name="members"
-    )
-    subcategory = models.ForeignKey(
-        "SubCategory", on_delete=models.CASCADE, related_name="members"
-    )
-    name = models.CharField(max_length=100)
-    classe = models.CharField(max_length=3, choices=CLASS_CHOICES)
-    turma = models.CharField(max_length=2)
-    profile_image = models.TextField(null=False)
-    course = models.CharField(
-        max_length=20, choices=COURSE_CHOICES, null=True, blank=True
     )
 
     def __str__(self):
@@ -157,29 +99,22 @@ class Voter(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-class Vote(models.Model):
-    CHOOSE_TYPE = [("stand", "Stand"), ("member", "Membro"), ("project", "Projeto")]
+from django.core.exceptions import ValidationError
 
-    voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
-    activity = models.ForeignKey(Activity, on_delete=models.CASCADE)
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, null=True, blank=True
-    )
-    category_type = models.CharField(max_length=100, choices=CHOOSE_TYPE)
-    subcategory = models.ForeignKey(
-        SubCategory, on_delete=models.CASCADE, null=True, blank=True
-    )
-    project = models.ForeignKey(
-        Project, on_delete=models.CASCADE, null=True, blank=True
-    )
-    member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True, blank=True)
-    stand = models.ForeignKey(Stand, on_delete=models.CASCADE, null=True, blank=True)
+class Vote(models.Model):
+    voter = models.ForeignKey(Voter, on_delete=models.CASCADE, related_name="votes")
+    
+    project = models.ForeignKey("Project", on_delete=models.CASCADE, null=True, blank=True, related_name="votes")
+    member = models.ForeignKey("Member", on_delete=models.CASCADE, null=True, blank=True, related_name="votes")
+    stand = models.ForeignKey("Stand", on_delete=models.CASCADE, null=True, blank=True, related_name="votes")
+    
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = (("voter", "subcategory", "category"),)
+    def clean(self):
+        targets = [bool(self.project), bool(self.member), bool(self.stand)]
+        if targets.count(True) != 1:
+            raise ValidationError("Um voto tem de ser para exatamente um Projeto, um Membro ou um Stand.")
 
     def __str__(self):
-        return (
-            f"Voto de {self.voter} em subcategoria {self.subcategory or self.category}"
-        )
+        target = self.project or self.member or self.stand
+        return f"Voto de {self.voter} em {target}"
