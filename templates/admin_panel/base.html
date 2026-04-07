@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Admin Dashboard{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <style>
+      body { font-family: 'Inter', sans-serif; }
+      .form-input { width: 100%; border-radius: 0.75rem; border: 1px solid #cbd5e1; padding: 0.85rem 1rem; }
+      .form-input:focus { outline: none; border-color: #0ea5e9; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15); }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-900">
+    <div class="min-h-screen lg:flex">
+      <aside class="w-full lg:w-72 bg-white border-r border-slate-200">
+        <div class="flex items-center gap-3 px-6 py-6 border-b border-slate-200">
+          <div class="h-10 w-10 rounded-2xl bg-sky-600 flex items-center justify-center text-white font-bold">V</div>
+          <div>
+            <p class="text-sm font-semibold">Voting Admin</p>
+            <p class="text-xs text-slate-500">Custom management panel</p>
+          </div>
+        </div>
+        <nav class="px-6 py-6 space-y-2">
+          <a href="{% url 'admin_dashboard' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Dashboard</a>
+          <a href="{% url 'admin_activities' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name in 'admin_activities admin_activity_create admin_activity_update' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Activities</a>
+          <a href="{% url 'admin_categories' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name in 'admin_categories admin_category_create admin_category_update' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Categories</a>
+          <a href="{% url 'admin_subcategories' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name in 'admin_subcategories admin_subcategory_create admin_subcategory_update' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Subcategories</a>
+          <a href="{% url 'admin_projects' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name in 'admin_projects admin_project_create admin_project_update' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Projects</a>
+          <a href="{% url 'admin_members' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name in 'admin_members admin_member_create admin_member_update' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Members</a>
+        </nav>
+      </aside>
+      <main class="flex-1 p-6 lg:p-10">
+        <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+          <div>
+            <h1 class="text-2xl font-semibold text-slate-900">{% block page_heading %}Admin Panel{% endblock %}</h1>
+            <p class="text-sm text-slate-500">Manage activities, categories, projects, and members without Django Admin.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            {% if request.user.is_authenticated %}
+            <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">{{ request.user.name }}</span>
+            <a href="{% url 'admin_logout' %}" class="rounded-2xl bg-slate-900 px-4 py-2 text-white hover:bg-slate-800">Logout</a>
+            {% endif %}
+          </div>
+        </header>
+
+        {% if messages %}
+          <div class="space-y-3 mb-6">
+            {% for message in messages %}
+              <div class="rounded-2xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-700{% else %}border-sky-200 bg-sky-50 text-sky-700{% endif %}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

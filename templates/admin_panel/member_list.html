@@ -1,0 +1,67 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Members — Admin{% endblock %}
+{% block page_heading %}Members{% endblock %}
+{% block content %}
+  <div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-sm text-slate-500">Manage project members and view active assignments quickly.</p>
+      </div>
+      <a href="{% url 'admin_member_create' %}" class="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">Add Member</a>
+    </div>
+
+    <form method="get" class="grid gap-3 sm:grid-cols-[1fr_auto]">
+      <input type="search" name="q" value="{{ query }}" placeholder="Search members..." class="form-input" />
+      <button type="submit" class="rounded-3xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">Search</button>
+    </form>
+
+    <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <table class="min-w-full divide-y divide-slate-200 text-left">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Name</th>
+            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Class</th>
+            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Project</th>
+            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Activity</th>
+            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+          {% for member in members %}
+            <tr>
+              <td class="px-6 py-4">
+                <p class="font-semibold text-slate-900">{{ member.name }}</p>
+                <p class="text-sm text-slate-500">{{ member.course }}</p>
+              </td>
+              <td class="px-6 py-4 text-slate-700">{{ member.classe }}º / {{ member.turma }}</td>
+              <td class="px-6 py-4 text-slate-700">{{ member.project.name }}</td>
+              <td class="px-6 py-4 text-slate-600">{{ member.activity.name }}</td>
+              <td class="px-6 py-4 space-x-2 text-sm">
+                <a href="{% url 'admin_member_update' member.pk %}" class="rounded-full bg-slate-100 px-3 py-1 text-slate-700 hover:bg-slate-200">Edit</a>
+                <a href="{% url 'admin_member_delete' member.pk %}" class="rounded-full bg-rose-100 px-3 py-1 text-rose-700 hover:bg-rose-200">Delete</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="px-6 py-8 text-center text-sm text-slate-500">No members found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if is_paginated %}
+      <div class="flex items-center justify-between rounded-3xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-600">
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        <div class="flex items-center gap-2">
+          {% if page_obj.has_previous %}
+            <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}" class="rounded-full border border-slate-200 px-3 py-2 hover:bg-slate-100">Previous</a>
+          {% endif %}
+          {% if page_obj.has_next %}
+            <a href="?q={{ query }}&page={{ page_obj.next_page_number }}" class="rounded-full border border-slate-200 px-3 py-2 hover:bg-slate-100">Next</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

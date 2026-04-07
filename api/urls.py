@@ -91,6 +91,30 @@ urlpatterns = [
     path(
         "api/admin/create-member", views.admin_view.create_member, name="create_member"
     ),
+    # ------------------------------------Custom Admin UI----------------------------------------------
+    path("dashboard/", views.admin_dashboard.DashboardView.as_view(), name="admin_dashboard"),
+    path("dashboard/login/", views.admin_dashboard.AdminLoginView.as_view(), name="admin_login"),
+    path("dashboard/logout/", views.admin_dashboard.AdminLogoutView.as_view(), name="admin_logout"),
+    path("dashboard/activities/", views.admin_dashboard.ActivityListView.as_view(), name="admin_activities"),
+    path("dashboard/activities/create/", views.admin_dashboard.ActivityCreateView.as_view(), name="admin_activity_create"),
+    path("dashboard/activities/<int:pk>/edit/", views.admin_dashboard.ActivityUpdateView.as_view(), name="admin_activity_update"),
+    path("dashboard/activities/<int:pk>/delete/", views.admin_dashboard.ActivityDeleteView.as_view(), name="admin_activity_delete"),
+    path("dashboard/categories/", views.admin_dashboard.CategoryListView.as_view(), name="admin_categories"),
+    path("dashboard/categories/create/", views.admin_dashboard.CategoryCreateView.as_view(), name="admin_category_create"),
+    path("dashboard/categories/<int:pk>/edit/", views.admin_dashboard.CategoryUpdateView.as_view(), name="admin_category_update"),
+    path("dashboard/categories/<int:pk>/delete/", views.admin_dashboard.CategoryDeleteView.as_view(), name="admin_category_delete"),
+    path("dashboard/subcategories/", views.admin_dashboard.SubCategoryListView.as_view(), name="admin_subcategories"),
+    path("dashboard/subcategories/create/", views.admin_dashboard.SubCategoryCreateView.as_view(), name="admin_subcategory_create"),
+    path("dashboard/subcategories/<int:pk>/edit/", views.admin_dashboard.SubCategoryUpdateView.as_view(), name="admin_subcategory_update"),
+    path("dashboard/subcategories/<int:pk>/delete/", views.admin_dashboard.SubCategoryDeleteView.as_view(), name="admin_subcategory_delete"),
+    path("dashboard/projects/", views.admin_dashboard.ProjectListView.as_view(), name="admin_projects"),
+    path("dashboard/projects/create/", views.admin_dashboard.ProjectCreateView.as_view(), name="admin_project_create"),
+    path("dashboard/projects/<int:pk>/edit/", views.admin_dashboard.ProjectUpdateView.as_view(), name="admin_project_update"),
+    path("dashboard/projects/<int:pk>/delete/", views.admin_dashboard.ProjectDeleteView.as_view(), name="admin_project_delete"),
+    path("dashboard/members/", views.admin_dashboard.MemberListView.as_view(), name="admin_members"),
+    path("dashboard/members/create/", views.admin_dashboard.MemberCreateView.as_view(), name="admin_member_create"),
+    path("dashboard/members/<int:pk>/edit/", views.admin_dashboard.MemberUpdateView.as_view(), name="admin_member_update"),
+    path("dashboard/members/<int:pk>/delete/", views.admin_dashboard.MemberDeleteView.as_view(), name="admin_member_delete"),
     # ----------------------------------------Authentication----------------------------------------------
     path(
         "api/register-voter",
