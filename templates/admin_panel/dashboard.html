@@ -2,7 +2,184 @@
 {% block title %}Dashboard — Admin{% endblock %}
 {% block page_heading %}Dashboard{% endblock %}
 {% block content %}
-  <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3 mb-8">
+
+  <style>
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+    .card-stat {
+      animation: fadeUp 0.4s ease both;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 1.25rem 1.4rem;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .card-stat::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      border-radius: 14px 0 0 14px;
+    }
+    .card-stat.green::before  { background: #22c55e; }
+    .card-stat.sky::before    { background: #0ea5e9; }
+    .card-stat.violet::before { background: #8b5cf6; }
+    .card-stat.amber::before  { background: #f59e0b; }
+    .card-stat.rose::before   { background: #f43f5e; }
+    .card-stat.teal::before   { background: #14b8a6; }
+  
+    .stat-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .icon-green  { background: #dcfce7; color: #15803d; }
+    .icon-sky    { background: #e0f2fe; color: #0369a1; }
+    .icon-violet { background: #ede9fe; color: #6d28d9; }
+    .icon-amber  { background: #fef3c7; color: #b45309; }
+    .icon-rose   { background: #ffe4e6; color: #be123c; }
+    .icon-teal   { background: #ccfbf1; color: #0f766e; }
+  
+    /* Stacked avatars */
+    .avatar-stack { display: flex; align-items: center; }
+    .avatar-stack .av {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      margin-left: -8px;
+      object-fit: cover;
+      overflow: hidden;
+      background: #e2e8f0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 700; color: #64748b;
+      flex-shrink: 0;
+    }
+    .avatar-stack .av:first-child { margin-left: 0; }
+    .av-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  
+    .live-dot {
+      display: inline-block;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #22c55e;
+      animation: pulse-dot 1.4s infinite;
+    }
+  
+    .illus-blob {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.07;
+      pointer-events: none;
+    }
+  
+    .quick-action {
+      display: flex; align-items: center; gap: 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      font-size: 0.84rem; font-weight: 500; color: #334155;
+      background: #f8fafc;
+      transition: all 0.18s;
+      text-decoration: none;
+    }
+    .quick-action:hover {
+      border-color: #22c55e;
+      background: #f0fdf4;
+      color: #15803d;
+    }
+    .quick-action .qa-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; flex-shrink: 0;
+    }
+  
+    .activity-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 0.85rem 1rem;
+      border: 1px solid #f1f5f9;
+      border-radius: 10px;
+      background: #fafafa;
+      transition: background 0.15s;
+    }
+    .activity-row:hover { background: #f0fdf4; border-color: #bbf7d0; }
+  
+    .badge-open   { background: #dcfce7; color: #166534; }
+    .badge-closed { background: #f1f5f9; color: #475569; }
+    .status-badge {
+      padding: 2px 10px; border-radius: 20px;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      white-space: nowrap; flex-shrink: 0;
+    }
+
+    .section-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 1.4rem;
+    }
+  
+    .welcome-strip {
+      background: linear-gradient(120deg, #166534 0%, #15803d 55%, #16a34a 100%);
+      border-radius: 14px;
+      padding: 1.4rem 1.6rem;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+  
+    .card-stat:nth-child(1) { animation-delay: 0.05s; }
+    .card-stat:nth-child(2) { animation-delay: 0.10s; }
+    .card-stat:nth-child(3) { animation-delay: 0.15s; }
+    .card-stat:nth-child(4) { animation-delay: 0.20s; }
+    .card-stat:nth-child(5) { animation-delay: 0.25s; }
+    .card-stat:nth-child(6) { animation-delay: 0.30s; }
+  </style>
+
+  <!-- Sessão de Bem-vindo -->
+
+  <div class="welcome-strip">
+    <div class="illus-blob" style="width:180px;height:180px;background:#fff;top:-60px;right:80px;opacity:0.08;"></div>
+    <div class="illus-blob" style="width:100px;height:100px;background:#fff;bottom:-40px;right:20px;opacity:0.06;"></div>
+  
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;position:relative;z-index:1;">
+      <div>
+        <p style="font-size:0.78rem;font-weight:600;opacity:0.75;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;">Overview</p>
+        <h2 style="font-size:1.35rem;font-weight:700;margin:0 0 4px;">Good day, {{ request.user.name }} 👋</h2>
+        <p style="font-size:0.83rem;opacity:0.8;margin:0;">Here's what's happening in your platform right now.</p>
+      </div>
+      <svg width="90" height="56" viewBox="0 0 90 56" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:0.45;flex-shrink:0;">
+        <rect x="0"  y="28" width="14" height="28" rx="4" fill="white"/>
+        <rect x="19" y="14" width="14" height="42" rx="4" fill="white"/>
+        <rect x="38" y="20" width="14" height="36" rx="4" fill="white"/>
+        <rect x="57" y="6"  width="14" height="50" rx="4" fill="white"/>
+        <rect x="76" y="18" width="14" height="38" rx="4" fill="white"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="grid gap4 mb-4">
+    <!-- card de total users -->
+     <div class="card-stat">
+        <div style="position:absolute; width:90px; height: 90px; border-radius: 50%; 
+          background:#dcfce7; top: -28px; right: -20px; opacity:0.5; pointer-events:none;">
+        </div>
+        <div style="display:flex; algi"></div>
+        <p class="text-sm font-semibold text-slate-500">Total Users</p>
+        <p class="mt-2 text-2xl font-bold text-slate-900">{{ total_users }}</p>
+     </div>
+  </div>
+
+  <!-- <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3 mb-8">
     <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
       <p class="text-sm font-semibold text-slate-500">Total Users</p>
       <p class="mt-4 text-3xl font-semibold text-slate-900">{{ total_users }}</p>
@@ -27,7 +204,7 @@
       <p class="text-sm font-semibold text-slate-500">Total Members</p>
       <p class="mt-4 text-3xl font-semibold text-slate-900">{{ total_members }}</p>
     </div>
-  </div>
+  </div> -->
 
   <section class="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
     <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">

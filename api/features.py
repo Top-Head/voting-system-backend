@@ -1,4 +1,4 @@
-from django.db.models import Count, F, Value
+from django.db.models import Count, F, Value, Q
 from django.db.models import CharField
 from api.models import Vote
 
@@ -6,22 +6,23 @@ from api.models import Vote
 def generate_vote_ranking(activity_id):
     results = []
 
-    activity_votes = Vote.objects.filter(activity=activity_id)
+    activity_votes = Vote.objects.filter(
+        Q(project__activity=activity_id) | Q(member__activity=activity_id) | Q(stand__activity=activity_id)
+    )
 
     vote_targets = ["stand", "member", "project"]
 
     for target in vote_targets:
         votes = activity_votes.filter(**{f"{target}__isnull": False})
 
-        common_values = {
-            "alias_cat_id": F("category__id"),
-            "alias_cat_name": F("category__name"),
-            "alias_cat_type": F("category__category_type"),
-            "alias_subcat_id": F("subcategory__id"),
-            "alias_subcat_name": F("subcategory__name"),
-        }
-
         if target == "stand":
+            common_values = {
+                "alias_cat_id": F("stand__category__id"),
+                "alias_cat_name": F("stand__category__name"),
+                "alias_cat_type": F("stand__category__category_type"),
+                "alias_subcat_id": Value(None, output_field=CharField()),
+                "alias_subcat_name": Value(None, output_field=CharField()),
+            }
             votes = votes.values(
                 "stand__id",
                 "stand__name",
@@ -39,6 +40,13 @@ def generate_vote_ranking(activity_id):
             )
 
         elif target == "member":
+            common_values = {
+                "alias_cat_id": F("member__project__category__id"),
+                "alias_cat_name": F("member__project__category__name"),
+                "alias_cat_type": F("member__project__category__category_type"),
+                "alias_subcat_id": F("member__project__subcategory__id"),
+                "alias_subcat_name": F("member__project__subcategory__name"),
+            }
             votes = votes.values(
                 "member__id",
                 "member__name",
@@ -59,6 +67,13 @@ def generate_vote_ranking(activity_id):
             )
 
         elif target == "project":
+            common_values = {
+                "alias_cat_id": F("project__category__id"),
+                "alias_cat_name": F("project__category__name"),
+                "alias_cat_type": F("project__category__category_type"),
+                "alias_subcat_id": F("project__subcategory__id"),
+                "alias_subcat_name": F("project__subcategory__name"),
+            }
             votes = votes.values(
                 "project__id",
                 "project__name",
