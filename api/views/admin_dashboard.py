@@ -34,6 +34,15 @@ class AdminAccessMixin(LoginRequiredMixin, UserPassesTestMixin):
         return redirect("admin_login")
 
 
+class AdminDeleteMixin(AdminAccessMixin, DeleteView):
+    template_name = "admin_panel/confirm_delete.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["verbose_name"] = self.object._meta.verbose_name
+        return context
+
+
 class AdminLoginView(FormView):
     template_name = "admin_panel/login.html"
     form_class = AdminLoginForm
@@ -153,9 +162,8 @@ class ActivityUpdateView(AdminAccessMixin, UpdateView):
         return response
 
 
-class ActivityDeleteView(AdminAccessMixin, DeleteView):
+class ActivityDeleteView(AdminDeleteMixin):
     model = Activity
-    template_name = "admin_panel/confirm_delete.html"
     success_url = reverse_lazy("admin_activities")
 
     def delete(self, request, *args, **kwargs):
@@ -193,9 +201,8 @@ class CategoryUpdateView(AdminAccessMixin, UpdateView):
         return response
 
 
-class CategoryDeleteView(AdminAccessMixin, DeleteView):
+class CategoryDeleteView(AdminDeleteMixin):
     model = Category
-    template_name = "admin_panel/confirm_delete.html"
     success_url = reverse_lazy("admin_categories")
 
     def delete(self, request, *args, **kwargs):
@@ -233,9 +240,8 @@ class SubCategoryUpdateView(AdminAccessMixin, UpdateView):
         return response
 
 
-class SubCategoryDeleteView(AdminAccessMixin, DeleteView):
+class SubCategoryDeleteView(AdminDeleteMixin):
     model = SubCategory
-    template_name = "admin_panel/confirm_delete.html"
     success_url = reverse_lazy("admin_subcategories")
 
     def delete(self, request, *args, **kwargs):
@@ -285,9 +291,8 @@ class ProjectUpdateView(AdminAccessMixin, UpdateView):
         return redirect(self.success_url)
 
 
-class ProjectDeleteView(AdminAccessMixin, DeleteView):
+class ProjectDeleteView(AdminDeleteMixin):
     model = Project
-    template_name = "admin_panel/confirm_delete.html"
     success_url = reverse_lazy("admin_projects")
 
     def delete(self, request, *args, **kwargs):
@@ -343,9 +348,8 @@ class MemberUpdateView(AdminAccessMixin, UpdateView):
         return redirect(self.success_url)
 
 
-class MemberDeleteView(AdminAccessMixin, DeleteView):
+class MemberDeleteView(AdminDeleteMixin):
     model = Member
-    template_name = "admin_panel/confirm_delete.html"
     success_url = reverse_lazy("admin_members")
 
     def delete(self, request, *args, **kwargs):
