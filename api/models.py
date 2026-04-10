@@ -24,13 +24,19 @@ class Activity(models.Model):
 class Category(models.Model):
     CHOOSE_TYPE = [("stand", "Stand"), ("member", "Membros"), ("project", "Projeto")]
     name = models.CharField(max_length=100)
-    activity = models.ForeignKey("Activity", on_delete=models.CASCADE, related_name="categories", default=None)
+    activity = models.ForeignKey("Activity", on_delete=models.CASCADE, related_name="categories")
     category_type = models.CharField(max_length=100, choices=CHOOSE_TYPE)
+
+    def __str__(self):
+        return self.name
 
 class SubCategory(models.Model):
     name = models.CharField(max_length=100)
-    activity = models.ForeignKey("Activity", on_delete=models.CASCADE, related_name="subcategories", default=None)
+    activity = models.ForeignKey("Activity", on_delete=models.CASCADE, related_name="subcategories")
     category = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="subcategories")
+
+    def __str__(self):
+        return self.name
 
 class Project(models.Model):
     name = models.CharField(max_length=100)
@@ -38,6 +44,9 @@ class Project(models.Model):
     category = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="projects")
     subcategory = models.ForeignKey("SubCategory", on_delete=models.CASCADE, related_name="projects")
     project_cover = models.TextField(null=True)
+
+    def __str__(self):
+        return self.name
 
 class Member(models.Model):
     CLASS_CHOICES = [("1ª", "1ª"), ("2ª", "2ª"), ("3ª", "3ª"), ("4ª", "4ª"), ("5ª", "5ª"), ("6ª", "6ª"), ("7ª", "7ª"), ("8ª", "8ª"), ("9ª", "9ª"), ("10ª", "10ª"), ("11ª", "11ª"), ("12ª", "12ª"), ("13ª", "13ª")]

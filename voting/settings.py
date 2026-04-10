@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+DEBUG = True
 
 
 ALLOWED_HOSTS = ["*"]
@@ -71,18 +71,6 @@ SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
 DEFAULT_FROM_EMAIL = "omarscode007@gmail.com"
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
-
-if SENDGRID_API_KEY:
-    try:
-        import sendgrid_backend
-
-        EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-        SENDGRID_SANDBOX_MODE_IN_DEBUG = False
-        SENDGRID_ECHO_TO_STDOUT = False
-    except ImportError:
-        EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-else:
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

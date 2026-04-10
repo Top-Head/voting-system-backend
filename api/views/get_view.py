@@ -91,8 +91,7 @@ def activity_project_count(request, activity_id):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@cache_page(60 * 5)
-@vary_on_cookie
+
 @api_view(["GET"])
 def get_projects(request):
     projects = Project.objects.all()
@@ -115,8 +114,7 @@ def get_project(request, project_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@cache_page(60 * 5)
-@vary_on_cookie
+
 @api_view(["GET"])
 def get_categories_by_activity(request, activity_id):
     categories = Category.objects.filter(activity_id=activity_id)
@@ -124,8 +122,7 @@ def get_categories_by_activity(request, activity_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@cache_page(60 * 5)
-@vary_on_cookie
+
 @api_view(["GET"])
 def get_category(request, category_id):
     try:
@@ -139,8 +136,7 @@ def get_category(request, category_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@cache_page(60 * 5)
-@vary_on_cookie
+
 @api_view(["GET"])
 def get_category_items(request):
     response = []
@@ -171,13 +167,15 @@ def get_category_items(request):
     def get_cover(value):
         if not value:
             return None
-        if hasattr(value, "url"):
-            try:
-                return value.url
-            except Exception:
-                pass
-        return str(value)
 
+        try:
+            clean = str(value).split("||")[0].strip() 
+            print(clean)
+            return clean if clean else None
+
+        except Exception:
+            return None
+        
     try:
         # ───── PROJETOS ─────
         if category_type == "project":

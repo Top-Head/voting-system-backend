@@ -1,59 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
+  {% load static %}
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Admin Dashboard{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
-      body { font-family: 'Inter', sans-serif; }
-      .form-input { width: 100%; border-radius: 0.75rem; border: 1px solid #cbd5e1; padding: 0.85rem 1rem; }
-      .form-input:focus { outline: none; border-color: #0ea5e9; box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15); }
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+
+
+  .form-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid #cbd5e1;
+    padding: 0.85rem 1rem;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    padding: 0.65rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: 0.2s;
+  }
+
+  .btn-primary {
+    background: #22c55e;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: #16a34a;
+  }
+
+  .btn-outline {
+    border: 1px solid #22c55e;
+    color: #16a34a;
+    background: transparent;
+  }
+
+  .btn-outline:hover {
+    background: #f0fdf4;
+  }
+
+  .nav-active {
+    background: #f0fdf4;
+    color: #15803d;
+  }
     </style>
   </head>
   <body class="bg-slate-50 text-slate-900">
     <div class="min-h-screen lg:flex">
       <aside class="w-full lg:w-72 bg-white border-r border-slate-200">
         <div class="flex items-center gap-3 px-6 py-6 border-b border-slate-200">
-          <div class="h-10 w-10 rounded-2xl bg-sky-600 flex items-center justify-center text-white font-bold">V</div>
+          <img src="{% static 'admin/images/caflogo.png' %}" alt="CAF Vote Logo" class="h-10 w-10 rounded-full object-cover">
           <div>
-            <p class="text-sm font-semibold">Voting Admin</p>
+            <p class="text-sm font-semibold">CAF Vote</p>
             <p class="text-xs text-slate-500">Custom management panel</p>
           </div>
         </div>
         <nav class="px-6 py-6 space-y-2">
-          <a href="{% url 'admin_dashboard' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Dashboard</a>
-          <a href="{% url 'admin_activities' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name in 'admin_activities admin_activity_create admin_activity_update' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Activities</a>
-          <a href="{% url 'admin_categories' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name in 'admin_categories admin_category_create admin_category_update' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Categories</a>
-          <a href="{% url 'admin_subcategories' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name in 'admin_subcategories admin_subcategory_create admin_subcategory_update' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Subcategories</a>
-          <a href="{% url 'admin_projects' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name in 'admin_projects admin_project_create admin_project_update' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Projects</a>
-          <a href="{% url 'admin_members' %}" class="block rounded-2xl px-4 py-3 text-sm font-medium {% if request.resolver_match.url_name in 'admin_members admin_member_create admin_member_update' %}bg-sky-50 text-sky-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Members</a>
+
+          <a href="{% url 'admin_dashboard' %}" 
+            class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium 
+            {% if request.resolver_match.url_name == 'admin_dashboard' %}
+            nav-active
+            {% else %}
+            text-slate-700 hover:bg-slate-100
+            {% endif %}">
+            <i class="fa-solid fa-chart-line"></i>
+            Dashboard
+          </a>
+
+          <a href="{% url 'admin_activities' %}" 
+            class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium 
+            {% if request.resolver_match.url_name in 'admin_activities admin_activity_create admin_activity_update' %}
+            nav-active
+            {% else %}
+            text-slate-700 hover:bg-slate-100
+            {% endif %}">
+            <i class="fa-solid fa-bolt"></i>
+            Activities
+          </a>
+
+          <a href="{% url 'admin_categories' %}" 
+            class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium 
+            {% if request.resolver_match.url_name in 'admin_categories admin_category_create admin_category_update' %}
+            nav-active
+            {% else %}
+            text-slate-700 hover:bg-slate-100
+            {% endif %}">
+            <i class="fa-solid fa-layer-group"></i>
+            Categories
+          </a>
+
+          <a href="{% url 'admin_subcategories' %}" 
+            class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium 
+            {% if request.resolver_match.url_name in 'admin_subcategories admin_subcategory_create admin_subcategory_update' %}
+            nav-active
+            {% else %}
+            text-slate-700 hover:bg-slate-100
+            {% endif %}">
+            <i class="fa-solid fa-sitemap"></i>
+            Subcategories
+          </a>
+
+          <a href="{% url 'admin_projects' %}" 
+            class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium 
+            {% if request.resolver_match.url_name in 'admin_projects admin_project_create admin_project_update' %}
+            nav-active
+            {% else %}
+            text-slate-700 hover:bg-slate-100
+            {% endif %}">
+            <i class="fa-solid fa-diagram-project"></i>
+            Projects
+          </a>
+
+          <a href="{% url 'admin_members' %}" 
+            class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium 
+            {% if request.resolver_match.url_name in 'admin_members admin_member_create admin_member_update' %}
+            nav-active
+            {% else %}
+            text-slate-700 hover:bg-slate-100
+            {% endif %}">
+            <i class="fa-solid fa-users"></i>
+            Members
+          </a>
+
         </nav>
       </aside>
-      <main class="flex-1 p-6 lg:p-10">
-        <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+      <!-- <main class="flex-1 p-6 lg:p-10"> -->
+        <main class="flex-1">
+        <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8 border-b border-slate-200 pb-4 bg-white px-6 py-3 lg:px-10 lg:py-5">
           <div>
             <h1 class="text-2xl font-semibold text-slate-900">{% block page_heading %}Admin Panel{% endblock %}</h1>
             <p class="text-sm text-slate-500">Manage activities, categories, projects, and members without Django Admin.</p>
           </div>
           <div class="flex items-center gap-3">
             {% if request.user.is_authenticated %}
-            <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">{{ request.user.name }}</span>
-            <a href="{% url 'admin_logout' %}" class="rounded-2xl bg-slate-900 px-4 py-2 text-white hover:bg-slate-800">Logout</a>
+            <span class="flex items-center gap-2 rounded-full bg-green-50 px-3 py-2 border border-green-200 text-sm font-medium text-green-700">
+              <i class="fa-solid fa-user"></i>
+              {{ request.user.name }}
+            </span>
+            <a href="{% url 'admin_logout' %}" class="btn btn-primary">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              Logout
+            </a>
             {% endif %}
           </div>
         </header>
 
-        {% if messages %}
-          <div class="space-y-3 mb-6">
-            {% for message in messages %}
-              <div class="rounded-2xl border px-4 py-3 text-sm {% if message.tags == 'error' %}border-rose-200 bg-rose-50 text-rose-700{% else %}border-sky-200 bg-sky-50 text-sky-700{% endif %}">{{ message }}</div>
-            {% endfor %}
-          </div>
-        {% endif %}
+        <section class="flex-1 px-6 lg:px-10">
+          {% if messages %}
+            <div class="space-y-3 mb-6">
+              {% for message in messages %}
+                <div class="rounded-2xl border px-4 py-3 text-sm 
+                  {% if message.tags == 'error' %}
+                  border-red-200 bg-red-50 text-red-700
+                  {% else %}
+                  border-green-200 bg-green-50 text-green-700
+                  {% endif %}"
+                >
+                  {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
 
-        {% block content %}{% endblock %}
+          {% block content %}{% endblock %}
+        </section>
+
+        
       </main>
     </div>
     {% block extra_js %}{% endblock %}
