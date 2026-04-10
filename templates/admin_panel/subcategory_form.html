@@ -1,31 +1,31 @@
 {% extends 'admin_panel/base.html' %}
 {% load static %}
-{% block title %}{% if view.object %}Edit Subcategory{% else %}Create Subcategory{% endif %} — Admin{% endblock %}
-{% block page_heading %}{% if view.object %}Edit Subcategory{% else %}Create Subcategory{% endif %}{% endblock %}
+{% block title %}{% if view.object %}Editar Subcategoria{% else %}Adicionar Subcategoria{% endif %} — Admin{% endblock %}
+{% block page_heading %}{% if view.object %}Editar Subcategoria{% else %}Adicionar Subcategoria{% endif %}{% endblock %}
 {% block content %}
   <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
     <form method="post" class="space-y-6">
       {% csrf_token %}
       <div>
-        <label class="mb-2 block text-sm font-medium text-slate-700">Name</label>
+        <label class="mb-2 block text-sm font-medium text-slate-700">Nome</label>
         {{ form.name }}
         {{ form.name.errors }}
       </div>
       <div class="grid gap-6 md:grid-cols-2">
         <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">Activity</label>
+          <label class="mb-2 block text-sm font-medium text-slate-700">Actividade</label>
           {{ form.activity }}
           {{ form.activity.errors }}
         </div>
         <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">Category</label>
+          <label class="mb-2 block text-sm font-medium text-slate-700">Categoria</label>
           {{ form.category }}
           {{ form.category.errors }}
         </div>
       </div>
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <a href="{% url 'admin_subcategories' %}" class="rounded-3xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</a>
-        <button type="submit" class="rounded-3xl bg-slate-900 px-7 py-3 text-sm font-semibold text-white hover:bg-slate-800">Save Subcategory</button>
+        <a href="{% url 'admin_subcategories' %}" class="rounded-3xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</a>
+        <button type="submit" class="rounded-3xl bg-slate-900 px-7 py-3 text-sm font-semibold text-white hover:bg-slate-800">Adicionar Subcategoria</button>
       </div>
     </form>
   </div>

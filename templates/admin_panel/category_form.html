@@ -7,24 +7,24 @@
       {% csrf_token %}
       <div class="grid gap-6 md:grid-cols-2">
         <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">Name</label>
+          <label class="mb-2 block text-sm font-medium text-slate-700">Nome</label>
           {{ form.name }}
           {{ form.name.errors }}
         </div>
         <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">Type</label>
+          <label class="mb-2 block text-sm font-medium text-slate-700">Tipo</label>
           {{ form.category_type }}
           {{ form.category_type.errors }}
         </div>
       </div>
       <div>
-        <label class="mb-2 block text-sm font-medium text-slate-700">Activity</label>
+        <label class="mb-2 block text-sm font-medium text-slate-700">Atividade relacionada</label>
         {{ form.activity }}
         {{ form.activity.errors }}
       </div>
       <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <a href="{% url 'admin_categories' %}" class="rounded-3xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancel</a>
-        <button type="submit" class="rounded-3xl bg-slate-900 px-7 py-3 text-sm font-semibold text-white hover:bg-slate-800">Save Category</button>
+        <a href="{% url 'admin_categories' %}" class="rounded-3xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</a>
+        <button type="submit" class="rounded-3xl bg-slate-900 px-7 py-3 text-sm font-semibold text-white hover:bg-slate-800">Criar Categoria</button>
       </div>
     </form>
   </div>

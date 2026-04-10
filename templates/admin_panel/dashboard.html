@@ -1,244 +1,373 @@
 {% extends 'admin_panel/base.html' %}
 {% block title %}Dashboard — Admin{% endblock %}
 {% block page_heading %}Dashboard{% endblock %}
+
 {% block content %}
 
-  <style>
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.4; }
-    }
-    .card-stat {
-      animation: fadeUp 0.4s ease both;
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 1.25rem 1.4rem;
-      position: relative;
-      overflow: hidden;
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .card-stat::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 4px; height: 100%;
-      border-radius: 14px 0 0 14px;
-    }
-    .card-stat.green::before  { background: #22c55e; }
-    .card-stat.sky::before    { background: #0ea5e9; }
-    .card-stat.violet::before { background: #8b5cf6; }
-    .card-stat.amber::before  { background: #f59e0b; }
-    .card-stat.rose::before   { background: #f43f5e; }
-    .card-stat.teal::before   { background: #14b8a6; }
-  
-    .stat-icon {
-      width: 42px; height: 42px;
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-    .icon-green  { background: #dcfce7; color: #15803d; }
-    .icon-sky    { background: #e0f2fe; color: #0369a1; }
-    .icon-violet { background: #ede9fe; color: #6d28d9; }
-    .icon-amber  { background: #fef3c7; color: #b45309; }
-    .icon-rose   { background: #ffe4e6; color: #be123c; }
-    .icon-teal   { background: #ccfbf1; color: #0f766e; }
-  
-    /* Stacked avatars */
-    .avatar-stack { display: flex; align-items: center; }
-    .avatar-stack .av {
-      width: 26px; height: 26px;
-      border-radius: 50%;
-      border: 2px solid #fff;
-      margin-left: -8px;
-      object-fit: cover;
-      overflow: hidden;
-      background: #e2e8f0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.6rem; font-weight: 700; color: #64748b;
-      flex-shrink: 0;
-    }
-    .avatar-stack .av:first-child { margin-left: 0; }
-    .av-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-  
-    .live-dot {
-      display: inline-block;
-      width: 7px; height: 7px; border-radius: 50%;
-      background: #22c55e;
-      animation: pulse-dot 1.4s infinite;
-    }
-  
-    .illus-blob {
-      position: absolute;
-      border-radius: 50%;
-      opacity: 0.07;
-      pointer-events: none;
-    }
-  
-    .quick-action {
-      display: flex; align-items: center; gap: 0.75rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 0.8rem 1rem;
-      font-size: 0.84rem; font-weight: 500; color: #334155;
-      background: #f8fafc;
-      transition: all 0.18s;
-      text-decoration: none;
-    }
-    .quick-action:hover {
-      border-color: #22c55e;
-      background: #f0fdf4;
-      color: #15803d;
-    }
-    .quick-action .qa-icon {
-      width: 32px; height: 32px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.85rem; flex-shrink: 0;
-    }
-  
-    .activity-row {
-      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-      padding: 0.85rem 1rem;
-      border: 1px solid #f1f5f9;
-      border-radius: 10px;
-      background: #fafafa;
-      transition: background 0.15s;
-    }
-    .activity-row:hover { background: #f0fdf4; border-color: #bbf7d0; }
-  
-    .badge-open   { background: #dcfce7; color: #166534; }
-    .badge-closed { background: #f1f5f9; color: #475569; }
-    .status-badge {
-      padding: 2px 10px; border-radius: 20px;
-      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
-      white-space: nowrap; flex-shrink: 0;
-    }
+<style>
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+  }
+  .card-stat {
+    animation: fadeUp 0.4s ease both;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.25rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .card-stat::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    border-radius: 14px 0 0 14px;
+  }
+  .card-stat.green::before  { background: #22c55e; }
+  .card-stat.sky::before    { background: #0ea5e9; }
+  .card-stat.violet::before { background: #8b5cf6; }
+  .card-stat.amber::before  { background: #f59e0b; }
+  .card-stat.rose::before   { background: #f43f5e; }
+  .card-stat.teal::before   { background: #14b8a6; }
 
-    .section-card {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 1.4rem;
-    }
-  
-    .welcome-strip {
-      background: linear-gradient(120deg, #166534 0%, #15803d 55%, #16a34a 100%);
-      border-radius: 14px;
-      padding: 1.4rem 1.6rem;
-      color: #fff;
-      position: relative;
-      overflow: hidden;
-      margin-bottom: 1.5rem;
-    }
-  
-    .card-stat:nth-child(1) { animation-delay: 0.05s; }
-    .card-stat:nth-child(2) { animation-delay: 0.10s; }
-    .card-stat:nth-child(3) { animation-delay: 0.15s; }
-    .card-stat:nth-child(4) { animation-delay: 0.20s; }
-    .card-stat:nth-child(5) { animation-delay: 0.25s; }
-    .card-stat:nth-child(6) { animation-delay: 0.30s; }
-  </style>
+  .stat-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .icon-green  { background: #dcfce7; color: #15803d; }
+  .icon-sky    { background: #e0f2fe; color: #0369a1; }
+  .icon-violet { background: #ede9fe; color: #6d28d9; }
+  .icon-amber  { background: #fef3c7; color: #b45309; }
+  .icon-rose   { background: #ffe4e6; color: #be123c; }
+  .icon-teal   { background: #ccfbf1; color: #0f766e; }
 
-  <!-- Sessão de Bem-vindo -->
+  .avatar-stack { display: flex; align-items: center; }
+  .avatar-stack .av {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    margin-left: -8px;
+    object-fit: cover;
+    overflow: hidden;
+    background: #e2e8f0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; font-weight: 700; color: #64748b;
+    flex-shrink: 0;
+  }
+  .avatar-stack .av:first-child { margin-left: 0; }
+  .av-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
-  <div class="welcome-strip">
-    <div class="illus-blob" style="width:180px;height:180px;background:#fff;top:-60px;right:80px;opacity:0.08;"></div>
-    <div class="illus-blob" style="width:100px;height:100px;background:#fff;bottom:-40px;right:20px;opacity:0.06;"></div>
-  
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;position:relative;z-index:1;">
-      <div>
-        <p style="font-size:0.78rem;font-weight:600;opacity:0.75;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;">Overview</p>
-        <h2 style="font-size:1.35rem;font-weight:700;margin:0 0 4px;">Good day, {{ request.user.name }} 👋</h2>
-        <p style="font-size:0.83rem;opacity:0.8;margin:0;">Here's what's happening in your platform right now.</p>
-      </div>
-      <svg width="90" height="56" viewBox="0 0 90 56" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:0.45;flex-shrink:0;">
-        <rect x="0"  y="28" width="14" height="28" rx="4" fill="white"/>
-        <rect x="19" y="14" width="14" height="42" rx="4" fill="white"/>
-        <rect x="38" y="20" width="14" height="36" rx="4" fill="white"/>
-        <rect x="57" y="6"  width="14" height="50" rx="4" fill="white"/>
-        <rect x="76" y="18" width="14" height="38" rx="4" fill="white"/>
+  .live-dot {
+    display: inline-block;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #22c55e;
+    animation: pulse-dot 1.4s infinite;
+  }
+
+  .illus-blob {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+
+  .quick-action {
+    display: flex; align-items: center; gap: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    font-size: 0.84rem; font-weight: 500; color: #334155;
+    background: #f8fafc;
+    transition: all 0.18s;
+    text-decoration: none;
+  }
+  .quick-action:hover {
+    border-color: #22c55e;
+    background: #f0fdf4;
+    color: #15803d;
+  }
+  .quick-action .qa-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; flex-shrink: 0;
+  }
+
+  .activity-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    background: #fafafa;
+    transition: background 0.15s;
+  }
+  .activity-row:hover { background: #f0fdf4; border-color: #bbf7d0; }
+
+  .badge-open   { background: #dcfce7; color: #166534; }
+  .badge-closed { background: #f1f5f9; color: #475569; }
+  .status-badge {
+    padding: 2px 10px; border-radius: 20px;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    white-space: nowrap; flex-shrink: 0;
+  }
+
+  .section-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.4rem;
+  }
+
+  .welcome-strip {
+    background: linear-gradient(120deg, #166534 0%, #15803d 55%, #16a34a 100%);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .card-stat:nth-child(1) { animation-delay: 0.05s; }
+  .card-stat:nth-child(2) { animation-delay: 0.10s; }
+  .card-stat:nth-child(3) { animation-delay: 0.15s; }
+  .card-stat:nth-child(4) { animation-delay: 0.20s; }
+  .card-stat:nth-child(5) { animation-delay: 0.25s; }
+  .card-stat:nth-child(6) { animation-delay: 0.30s; }
+</style>
+
+<div class="welcome-strip">
+  <div class="illus-blob" style="width:180px;height:180px;background:#fff;top:-60px;right:80px;opacity:0.08;"></div>
+  <div class="illus-blob" style="width:100px;height:100px;background:#fff;bottom:-40px;right:20px;opacity:0.06;"></div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;position:relative;z-index:1;">
+    <div>
+      <p style="font-size:0.78rem;font-weight:600;opacity:0.75;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;">Visão Geral</p>
+      <h2 style="font-size:1.35rem;font-weight:700;margin:0 0 4px;">Bom dia, {{ request.user.name }} 👋</h2>
+      <p style="font-size:0.83rem;opacity:0.8;margin:0;">Aqui está o que está a acontecer na tua plataforma agora.</p>
+    </div>
+    <svg width="90" height="56" viewBox="0 0 90 56" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:0.45;flex-shrink:0;">
+      <rect x="0"  y="28" width="14" height="28" rx="4" fill="white"/>
+      <rect x="19" y="14" width="14" height="42" rx="4" fill="white"/>
+      <rect x="38" y="20" width="14" height="36" rx="4" fill="white"/>
+      <rect x="57" y="6"  width="14" height="50" rx="4" fill="white"/>
+      <rect x="76" y="18" width="14" height="38" rx="4" fill="white"/>
+    </svg>
+  </div>
+</div>
+
+<div class="grid gap-4 mb-6" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr));">
+
+  <div class="card-stat">
+    <div style="position:absolute;width:90px;height:90px;border-radius:50%;background:#dcfce7;top:-28px;right:-20px;opacity:0.5;pointer-events:none;"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+      <div class="stat-icon icon-green"><i class="fa-solid fa-users"></i></div>
+      <span style="font-size:0.7rem;font-weight:700;color:#15803d;background:#dcfce7;border-radius:20px;padding:2px 8px;display:flex;align-items:center;gap:5px;">
+        <span class="live-dot"></span> Activo
+      </span>
+    </div>
+    <p style="font-size:0.78rem;font-weight:600;color:#64748b;margin:0 0 2px;">Total de Utilizadores</p>
+    <p style="font-size:2rem;font-weight:800;color:#0f172a;margin:0 0 0.85rem;line-height:1;">{{ total_users }}</p>
+    <div class="avatar-stack">
+      <div class="av" style="background:#bfdbfe;color:#1e40af;">JM</div>
+      <div class="av" style="background:#fde68a;color:#92400e;">AL</div>
+      <div class="av" style="background:#d9f99d;color:#365314;">RK</div>
+      <div class="av" style="background:#fecdd3;color:#9f1239;">SC</div>
+      <div class="av" style="background:#e9d5ff;color:#5b21b6;">+</div>
+    </div>
+  </div>
+
+  <div class="card-stat">
+    <div style="position:absolute;width:90px;height:90px;border-radius:50%;background:#e0f2fe;top:-28px;right:-20px;opacity:0.5;pointer-events:none;"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+      <div class="stat-icon icon-sky"><i class="fa-solid fa-bolt"></i></div>
+      <svg width="48" height="24" viewBox="0 0 48 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:0.55;">
+        <rect x="0"  y="12" width="6" height="12" rx="2" fill="#0ea5e9"/>
+        <rect x="9"  y="6"  width="6" height="18" rx="2" fill="#0ea5e9"/>
+        <rect x="18" y="9"  width="6" height="15" rx="2" fill="#0ea5e9"/>
+        <rect x="27" y="2"  width="6" height="22" rx="2" fill="#0ea5e9"/>
+        <rect x="36" y="7"  width="6" height="17" rx="2" fill="#0ea5e9"/>
+        <rect x="42" y="4"  width="6" height="20" rx="2" fill="#0ea5e9"/>
       </svg>
     </div>
+    <p style="font-size:0.78rem;font-weight:600;color:#64748b;margin:0 0 2px;">Total de Actividades</p>
+    <p style="font-size:2rem;font-weight:800;color:#0f172a;margin:0 0 0.5rem;line-height:1;">{{ total_activities }}</p>
+    <p style="font-size:0.75rem;color:#0369a1;font-weight:500;margin:0;">Geridas em todas as categorias</p>
   </div>
 
-  <div class="grid gap4 mb-4">
-    <!-- card de total users -->
-     <div class="card-stat">
-        <div style="position:absolute; width:90px; height: 90px; border-radius: 50%; 
-          background:#dcfce7; top: -28px; right: -20px; opacity:0.5; pointer-events:none;">
-        </div>
-        <div style="display:flex; algi"></div>
-        <p class="text-sm font-semibold text-slate-500">Total Users</p>
-        <p class="mt-2 text-2xl font-bold text-slate-900">{{ total_users }}</p>
-     </div>
+  <div class="card-stat">
+    <div style="position:absolute;width:90px;height:90px;border-radius:50%;background:#ede9fe;top:-28px;right:-20px;opacity:0.5;pointer-events:none;"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+      <div class="stat-icon icon-violet"><i class="fa-solid fa-layer-group"></i></div>
+      <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" style="opacity:0.6;">
+        <circle cx="18" cy="18" r="15" fill="none" stroke="#c4b5fd" stroke-width="6" stroke-dasharray="60 35" stroke-linecap="round"/>
+        <circle cx="18" cy="18" r="15" fill="none" stroke="#8b5cf6" stroke-width="6" stroke-dasharray="30 65" stroke-dashoffset="-60" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <p style="font-size:0.78rem;font-weight:600;color:#64748b;margin:0 0 2px;">Total de Categorias</p>
+    <p style="font-size:2rem;font-weight:800;color:#0f172a;margin:0 0 0.5rem;line-height:1;">{{ total_categories }}</p>
+    <p style="font-size:0.75rem;color:#6d28d9;font-weight:500;margin:0;">Agrupamentos de nível superior</p>
   </div>
 
-  <!-- <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3 mb-8">
-    <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-      <p class="text-sm font-semibold text-slate-500">Total Users</p>
-      <p class="mt-4 text-3xl font-semibold text-slate-900">{{ total_users }}</p>
+  <div class="card-stat">
+    <div style="position:absolute;width:90px;height:90px;border-radius:50%;background:#fef3c7;top:-28px;right:-20px;opacity:0.5;pointer-events:none;"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+      <div class="stat-icon icon-amber"><i class="fa-solid fa-sitemap"></i></div>
+      <svg width="42" height="32" viewBox="0 0 42 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:0.55;">
+        <circle cx="21" cy="6"  r="5" fill="#fbbf24"/>
+        <line x1="21" y1="11" x2="9"  y2="21" stroke="#fbbf24" stroke-width="2"/>
+        <line x1="21" y1="11" x2="33" y2="21" stroke="#fbbf24" stroke-width="2"/>
+        <circle cx="9"  cy="26" r="5" fill="#f59e0b"/>
+        <circle cx="33" cy="26" r="5" fill="#f59e0b"/>
+      </svg>
     </div>
-    <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-      <p class="text-sm font-semibold text-slate-500">Total Activities</p>
-      <p class="mt-4 text-3xl font-semibold text-slate-900">{{ total_activities }}</p>
-    </div>
-    <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-      <p class="text-sm font-semibold text-slate-500">Total Categories</p>
-      <p class="mt-4 text-3xl font-semibold text-slate-900">{{ total_categories }}</p>
-    </div>
-    <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-      <p class="text-sm font-semibold text-slate-500">Total Subcategories</p>
-      <p class="mt-4 text-3xl font-semibold text-slate-900">{{ total_subcategories }}</p>
-    </div>
-    <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-      <p class="text-sm font-semibold text-slate-500">Total Projects</p>
-      <p class="mt-4 text-3xl font-semibold text-slate-900">{{ total_projects }}</p>
-    </div>
-    <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-      <p class="text-sm font-semibold text-slate-500">Total Members</p>
-      <p class="mt-4 text-3xl font-semibold text-slate-900">{{ total_members }}</p>
-    </div>
-  </div> -->
+    <p style="font-size:0.78rem;font-weight:600;color:#64748b;margin:0 0 2px;">Total de Subcategorias</p>
+    <p style="font-size:2rem;font-weight:800;color:#0f172a;margin:0 0 0.5rem;line-height:1;">{{ total_subcategories }}</p>
+    <p style="font-size:0.75rem;color:#b45309;font-weight:500;margin:0;">Aninhadas dentro das categorias</p>
+  </div>
 
-  <section class="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-    <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-      <div class="flex items-center justify-between mb-5">
-        <div>
-          <h2 class="text-lg font-semibold text-slate-900">Recent Activities</h2>
-          <p class="text-sm text-slate-500">Latest entries created in the system.</p>
-        </div>
-        <a href="{% url 'admin_activities' %}" class="text-sm font-semibold text-sky-600 hover:text-sky-700">View all</a>
+  <div class="card-stat">
+    <div style="position:absolute;width:90px;height:90px;border-radius:50%;background:#ffe4e6;top:-28px;right:-20px;opacity:0.5;pointer-events:none;"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+      <div class="stat-icon icon-rose"><i class="fa-solid fa-diagram-project"></i></div>
+      <div style="display:flex;flex-direction:column;gap:4px;width:50px;justify-content:center;">
+        <div style="height:5px;border-radius:3px;background:#fecdd3;width:100%;overflow:hidden;"><div style="height:100%;width:75%;background:#f43f5e;border-radius:3px;"></div></div>
+        <div style="height:5px;border-radius:3px;background:#fecdd3;width:100%;overflow:hidden;"><div style="height:100%;width:45%;background:#f43f5e;border-radius:3px;"></div></div>
+        <div style="height:5px;border-radius:3px;background:#fecdd3;width:100%;overflow:hidden;"><div style="height:100%;width:90%;background:#f43f5e;border-radius:3px;"></div></div>
       </div>
-      <div class="space-y-4">
-        {% for activity in recent_activities %}
-          <div class="rounded-3xl border border-slate-200 p-4">
-            <div class="flex items-center justify-between gap-4">
-              <div>
-                <p class="text-sm font-semibold text-slate-900">{{ activity.name }}</p>
-                <p class="text-sm text-slate-500 mt-1">{{ activity.description|truncatechars:80 }}</p>
-              </div>
-              <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700">{% if activity.finished %}Closed{% else %}Open{% endif %}</span>
+    </div>
+    <p style="font-size:0.78rem;font-weight:600;color:#64748b;margin:0 0 2px;">Total de Projectos</p>
+    <p style="font-size:2rem;font-weight:800;color:#0f172a;margin:0 0 0.5rem;line-height:1;">{{ total_projects }}</p>
+    <p style="font-size:0.75rem;color:#be123c;font-weight:500;margin:0;">Em todas as actividades</p>
+  </div>
+
+  <div class="card-stat">
+    <div style="position:absolute;width:90px;height:90px;border-radius:50%;background:#ccfbf1;top:-28px;right:-20px;opacity:0.5;pointer-events:none;"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
+      <div class="stat-icon icon-teal"><i class="fa-solid fa-id-card"></i></div>
+      <svg width="46" height="30" viewBox="0 0 46 30" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:0.55;">
+        <circle cx="8"  cy="8"  r="6" fill="#5eead4"/>
+        <path d="M0 28c0-5 3.5-9 8-9s8 4 8 9" fill="#5eead4"/>
+        <circle cx="23" cy="8"  r="6" fill="#2dd4bf"/>
+        <path d="M15 28c0-5 3.5-9 8-9s8 4 8 9" fill="#2dd4bf"/>
+        <circle cx="38" cy="8"  r="6" fill="#14b8a6"/>
+        <path d="M30 28c0-5 3.5-9 8-9s8 4 8 9" fill="#14b8a6"/>
+      </svg>
+    </div>
+    <p style="font-size:0.78rem;font-weight:600;color:#64748b;margin:0 0 2px;">Total de Membros</p>
+    <p style="font-size:2rem;font-weight:800;color:#0f172a;margin:0 0 0.5rem;line-height:1;">{{ total_members }}</p>
+    <p style="font-size:0.75rem;color:#0f766e;font-weight:500;margin:0;">Participantes registados</p>
+  </div>
+
+</div>
+
+<section style="display:grid;gap:1.25rem;grid-template-columns:1.6fr 1fr;">
+
+  <div class="section-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;">
+      <div>
+        <h2 style="font-size:1rem;font-weight:700;color:#0f172a;margin:0 0 2px;">Actividades Recentes</h2>
+        <p style="font-size:0.78rem;color:#94a3b8;margin:0;">Últimas entradas criadas no sistema.</p>
+      </div>
+      <a href="{% url 'admin_activities' %}" style="font-size:0.8rem;font-weight:600;color:#15803d;text-decoration:none;display:flex;align-items:center;gap:4px;">
+        Ver todas <i class="fa-solid fa-arrow-right" style="font-size:0.72rem;"></i>
+      </a>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:0.6rem;">
+      {% for activity in recent_activities %}
+        <div class="activity-row">
+          <div style="display:flex;align-items:center;gap:0.75rem;min-width:0;">
+            <div style="width:36px;height:36px;border-radius:9px;background:#f0fdf4;border:1px solid #bbf7d0;display:flex;align-items:center;justify-content:center;color:#16a34a;font-size:0.85rem;flex-shrink:0;">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div style="min-width:0;">
+              <p style="font-size:0.84rem;font-weight:600;color:#0f172a;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ activity.name }}</p>
+              <p style="font-size:0.75rem;color:#94a3b8;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ activity.description|truncatechars:60 }}</p>
             </div>
           </div>
-        {% empty %}
-          <p class="text-sm text-slate-500">No activities found yet.</p>
-        {% endfor %}
+          <span class="status-badge {% if activity.finished %}badge-closed{% else %}badge-open{% endif %}">
+            {% if activity.finished %}Fechada{% else %}Aberta{% endif %}
+          </span>
+        </div>
+      {% empty %}
+        <div style="display:flex;flex-direction:column;align-items:center;padding:2rem 0;gap:0.75rem;">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="29" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="2"/>
+            <path d="M20 38h20M24 30h12M27 22h6" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <p style="font-size:0.84rem;color:#94a3b8;margin:0;">Nenhuma actividade encontrada ainda.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="section-card" style="display:flex;flex-direction:column;gap:0;">
+    <div style="margin-bottom:1.1rem;">
+      <h2 style="font-size:1rem;font-weight:700;color:#0f172a;margin:0 0 2px;">Acções Rápidas</h2>
+      <p style="font-size:0.78rem;color:#94a3b8;margin:0;">Salta directamente para uma tarefa.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:0.55rem;">
+      <a href="{% url 'admin_activity_create' %}" class="quick-action">
+        <div class="qa-icon" style="background:#f0fdf4;color:#16a34a;"><i class="fa-solid fa-bolt"></i></div>
+        <div>
+          <p style="margin:0;font-size:0.84rem;font-weight:600;">Criar Actividade</p>
+          <p style="margin:0;font-size:0.73rem;color:#94a3b8;">Adicionar uma nova actividade</p>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:#cbd5e1;margin-left:auto;"></i>
+      </a>
+
+      <a href="{% url 'admin_category_create' %}" class="quick-action">
+        <div class="qa-icon" style="background:#ede9fe;color:#7c3aed;"><i class="fa-solid fa-layer-group"></i></div>
+        <div>
+          <p style="margin:0;font-size:0.84rem;font-weight:600;">Criar Categoria</p>
+          <p style="margin:0;font-size:0.73rem;color:#94a3b8;">Organizar com uma nova categoria</p>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:#cbd5e1;margin-left:auto;"></i>
+      </a>
+
+      <a href="{% url 'admin_project_create' %}" class="quick-action">
+        <div class="qa-icon" style="background:#ffe4e6;color:#e11d48;"><i class="fa-solid fa-diagram-project"></i></div>
+        <div>
+          <p style="margin:0;font-size:0.84rem;font-weight:600;">Criar Projecto</p>
+          <p style="margin:0;font-size:0.73rem;color:#94a3b8;">Iniciar um novo projecto</p>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:#cbd5e1;margin-left:auto;"></i>
+      </a>
+
+      <a href="{% url 'admin_member_create' %}" class="quick-action">
+        <div class="qa-icon" style="background:#ccfbf1;color:#0f766e;"><i class="fa-solid fa-user-plus"></i></div>
+        <div>
+          <p style="margin:0;font-size:0.84rem;font-weight:600;">Adicionar Membro</p>
+          <p style="margin:0;font-size:0.73rem;color:#94a3b8;">Registar um novo membro</p>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="font-size:0.7rem;color:#cbd5e1;margin-left:auto;"></i>
+      </a>
+    </div>
+
+    <div style="margin-top:auto;padding-top:1.25rem;">
+      <div style="border-radius:10px;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border:1px solid #bbf7d0;padding:1rem;display:flex;align-items:center;gap:0.85rem;">
+        <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+          <circle cx="19" cy="19" r="18" fill="#dcfce7" stroke="#86efac" stroke-width="1.5"/>
+          <path d="M12 20l5 5 9-10" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <p style="font-size:0.8rem;font-weight:700;color:#166534;margin:0 0 2px;">Sistema a funcionar normalmente</p>
+          <p style="font-size:0.72rem;color:#4ade80;margin:0;">Todos os serviços estão operacionais.</p>
+        </div>
       </div>
     </div>
-    <div class="rounded-3xl bg-white p-6 shadow-sm border border-slate-200">
-      <h2 class="text-lg font-semibold text-slate-900 mb-3">Quick actions</h2>
-      <div class="grid gap-3">
-        <a href="{% url 'admin_activity_create' %}" class="block rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800 hover:border-sky-300 hover:bg-sky-50">Create Activity</a>
-        <a href="{% url 'admin_category_create' %}" class="block rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800 hover:border-sky-300 hover:bg-sky-50">Create Category</a>
-        <a href="{% url 'admin_project_create' %}" class="block rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800 hover:border-sky-300 hover:bg-sky-50">Create Project</a>
-        <a href="{% url 'admin_member_create' %}" class="block rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800 hover:border-sky-300 hover:bg-sky-50">Add Member</a>
-      </div>
-    </div>
-  </section>
+
+  </div>
+
+</section>
+
 {% endblock %}

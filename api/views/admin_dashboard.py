@@ -14,6 +14,7 @@ from api.forms import (
     ProjectForm,
     SubCategoryForm,
 )
+from api.features import generate_vote_ranking
 from api.models import Activity, Category, Member, Project, SubCategory, Voter
 from api.services.cloudinary import upload_to_cloudinary_members, upload_to_cloudinary_projects
 
@@ -76,6 +77,31 @@ class DashboardView(AdminAccessMixin, TemplateView):
         context["total_projects"] = Project.objects.count()
         context["total_members"] = Member.objects.count()
         context["recent_activities"] = Activity.objects.order_by("-created_at")[:5]
+        return context
+
+
+class RankingDashboardView(AdminAccessMixin, TemplateView):
+    template_name = "admin_panel/ranking_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        activities = Activity.objects.order_by("-created_at")
+        selected_id = self.request.GET.get("activity_id")
+        selected_activity = None
+        rankings = None
+        rank_error = None
+
+        if selected_id:
+            selected_activity = Activity.objects.filter(id=selected_id).first()
+            if not selected_activity:
+                rank_error = "Atividade não encontrada."
+            else:
+                rankings = generate_vote_ranking(selected_activity.id)
+
+        context["activities"] = activities
+        context["selected_activity"] = selected_activity
+        context["rankings"] = rankings
+        context["rank_error"] = rank_error
         return context
 
 

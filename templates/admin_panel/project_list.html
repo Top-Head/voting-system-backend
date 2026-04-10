@@ -5,25 +5,25 @@
   <div class="flex flex-col gap-6">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <p class="text-sm text-slate-500">Manage project submissions and project relationships with categories.</p>
+        <p class="text-sm text-slate-500">Gerencie as submissões de projectos e as relações com as categorias.</p>
       </div>
       <a href="{% url 'admin_project_create' %}" class="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">Create Project</a>
     </div>
 
     <form method="get" class="grid gap-3 sm:grid-cols-[1fr_auto]">
       <input type="search" name="q" value="{{ query }}" placeholder="Search projects..." class="form-input" />
-      <button type="submit" class="rounded-3xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">Search</button>
+      <button type="submit" class="rounded-3xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">Buscar</button>
     </form>
 
     <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
       <table class="min-w-full divide-y divide-slate-200 text-left">
         <thead class="bg-slate-50">
           <tr>
-            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Name</th>
-            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Category</th>
-            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Subcategory</th>
-            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Activity</th>
-            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Actions</th>
+            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Nome</th>
+            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Categoria</th>
+            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Subcategoria</th>
+            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Actividade</th>
+            <th class="px-6 py-4 text-sm font-semibold text-slate-600">Ações</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-200">
@@ -36,13 +36,13 @@
               <td class="px-6 py-4 text-slate-700">{{ project.subcategory.name }}</td>
               <td class="px-6 py-4 text-slate-600">{{ project.activity.name }}</td>
               <td class="px-6 py-4 space-x-2 text-sm">
-                <a href="{% url 'admin_project_update' project.pk %}" class="rounded-full bg-slate-100 px-3 py-1 text-slate-700 hover:bg-slate-200">Edit</a>
-                <a href="{% url 'admin_project_delete' project.pk %}" class="rounded-full bg-rose-100 px-3 py-1 text-rose-700 hover:bg-rose-200">Delete</a>
+                <a href="{% url 'admin_project_update' project.pk %}" class="rounded-full bg-slate-100 px-3 py-1 text-slate-700 hover:bg-slate-200">Editar</a>
+                <a href="{% url 'admin_project_delete' project.pk %}" class="rounded-full bg-rose-100 px-3 py-1 text-rose-700 hover:bg-rose-200">Excluir</a>
               </td>
             </tr>
           {% empty %}
             <tr>
-              <td colspan="5" class="px-6 py-8 text-center text-sm text-slate-500">No projects found.</td>
+              <td colspan="5" class="px-6 py-8 text-center text-sm text-slate-500">Projetos não encontrado.</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -54,10 +54,10 @@
         <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
         <div class="flex items-center gap-2">
           {% if page_obj.has_previous %}
-            <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}" class="rounded-full border border-slate-200 px-3 py-2 hover:bg-slate-100">Previous</a>
+            <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}" class="rounded-full border border-slate-200 px-3 py-2 hover:bg-slate-100">Anterior</a>
           {% endif %}
           {% if page_obj.has_next %}
-            <a href="?q={{ query }}&page={{ page_obj.next_page_number }}" class="rounded-full border border-slate-200 px-3 py-2 hover:bg-slate-100">Next</a>
+            <a href="?q={{ query }}&page={{ page_obj.next_page_number }}" class="rounded-full border border-slate-200 px-3 py-2 hover:bg-slate-100">Próxima</a>
           {% endif %}
         </div>
       </div>

@@ -96,6 +96,7 @@ urlpatterns = [
     path("dashboard/login/", views.admin_dashboard.AdminLoginView.as_view(), name="admin_login"),
     path("dashboard/logout/", views.admin_dashboard.AdminLogoutView.as_view(), name="admin_logout"),
     path("dashboard/activities/", views.admin_dashboard.ActivityListView.as_view(), name="admin_activities"),
+    path("dashboard/rankings/", views.admin_dashboard.RankingDashboardView.as_view(), name="admin_rankings"),
     path("dashboard/activities/create/", views.admin_dashboard.ActivityCreateView.as_view(), name="admin_activity_create"),
     path("dashboard/activities/<int:pk>/edit/", views.admin_dashboard.ActivityUpdateView.as_view(), name="admin_activity_update"),
     path("dashboard/activities/<int:pk>/delete/", views.admin_dashboard.ActivityDeleteView.as_view(), name="admin_activity_delete"),

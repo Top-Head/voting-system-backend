@@ -70,7 +70,7 @@
           <img src="{% static 'admin/images/caflogo.png' %}" alt="CAF Vote Logo" class="h-10 w-10 rounded-full object-cover">
           <div>
             <p class="text-sm font-semibold">CAF Vote</p>
-            <p class="text-xs text-slate-500">Custom management panel</p>
+            <p class="text-xs text-slate-500">Painel de controle</p>
           </div>
         </div>
         <nav class="px-6 py-6 space-y-2">
@@ -83,7 +83,7 @@
             text-slate-700 hover:bg-slate-100
             {% endif %}">
             <i class="fa-solid fa-chart-line"></i>
-            Dashboard
+            Painel
           </a>
 
           <a href="{% url 'admin_activities' %}" 
@@ -94,7 +94,7 @@
             text-slate-700 hover:bg-slate-100
             {% endif %}">
             <i class="fa-solid fa-bolt"></i>
-            Activities
+            Actividades
           </a>
 
           <a href="{% url 'admin_categories' %}" 
@@ -105,7 +105,7 @@
             text-slate-700 hover:bg-slate-100
             {% endif %}">
             <i class="fa-solid fa-layer-group"></i>
-            Categories
+            Categorias
           </a>
 
           <a href="{% url 'admin_subcategories' %}" 
@@ -116,7 +116,7 @@
             text-slate-700 hover:bg-slate-100
             {% endif %}">
             <i class="fa-solid fa-sitemap"></i>
-            Subcategories
+            Subcategorias
           </a>
 
           <a href="{% url 'admin_projects' %}" 
@@ -127,7 +127,7 @@
             text-slate-700 hover:bg-slate-100
             {% endif %}">
             <i class="fa-solid fa-diagram-project"></i>
-            Projects
+            Projectos
           </a>
 
           <a href="{% url 'admin_members' %}" 
@@ -138,7 +138,18 @@
             text-slate-700 hover:bg-slate-100
             {% endif %}">
             <i class="fa-solid fa-users"></i>
-            Members
+            Expositores
+          </a>
+
+          <a href="{% url 'admin_rankings' %}" 
+            class="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium 
+            {% if request.resolver_match.url_name == 'admin_rankings' %}
+            nav-active
+            {% else %}
+            text-slate-700 hover:bg-slate-100
+            {% endif %}">
+            <i class="fa-solid fa-trophy"></i>
+            Rankings
           </a>
 
         </nav>
@@ -147,8 +158,8 @@
         <main class="flex-1">
         <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8 border-b border-slate-200 pb-4 bg-white px-6 py-3 lg:px-10 lg:py-5">
           <div>
-            <h1 class="text-2xl font-semibold text-slate-900">{% block page_heading %}Admin Panel{% endblock %}</h1>
-            <p class="text-sm text-slate-500">Manage activities, categories, projects, and members without Django Admin.</p>
+            <h1 class="text-2xl font-semibold text-slate-900">{% block page_heading %}Painel Admin{% endblock %}</h1>
+            <p class="text-sm text-slate-500">Gere actividades, categorias, projectos e membros de maneira eficiente.</p>
           </div>
           <div class="flex items-center gap-3">
             {% if request.user.is_authenticated %}
@@ -158,7 +169,7 @@
             </span>
             <a href="{% url 'admin_logout' %}" class="btn btn-primary">
               <i class="fa-solid fa-right-from-bracket"></i>
-              Logout
+              Sair
             </a>
             {% endif %}
           </div>
