@@ -85,7 +85,11 @@ class DashboardView(AdminAccessMixin, TemplateView):
         context["total_subcategories"] = SubCategory.objects.count()
         context["total_projects"] = Project.objects.count()
         context["total_members"] = Member.objects.count()
-        context["recent_activities"] = Activity.objects.order_by("-created_at")[:5]
+        context["recent_activities"] = (
+            Activity.objects
+            .prefetch_related('categories', 'projects', 'members')
+            .order_by("-created_at")[:5]
+        )
         return context
 
 

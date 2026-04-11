@@ -94,7 +94,12 @@ def activity_project_count(request, activity_id):
 
 @api_view(["GET"])
 def get_projects(request):
-    projects = Project.objects.all()
+    projects = (
+        Project.objects
+        .select_related('activity', 'category', 'subcategory')
+        .prefetch_related('members')
+        .all()
+    )
     serializer = GetProjectSerializer(projects, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -170,7 +175,6 @@ def get_category_items(request):
 
         try:
             clean = str(value).split("||")[0].strip() 
-            print(clean)
             return clean if clean else None
 
         except Exception:
@@ -183,29 +187,39 @@ def get_category_items(request):
             if subcategory:
                 qs = qs.filter(subcategory=subcategory)
 
+            # PRÉ-CARREGAR TODOS OS VOTES do user para este tipo (O(n) em vez de O(n²))
+            user_voted_project_ids = set(
+                Vote.objects.filter(voter=user, project_id__in=qs.values_list('id', flat=True))
+                .values_list('project_id', flat=True)
+            )
+
             for proj in qs:
-                has_voted = Vote.objects.filter(voter=user, project=proj).exists()
                 response.append({
                     "id": proj.id,
                     "name": proj.name or "",
                     "cover": get_cover(proj.project_cover),
                     "activity": activity.name,
                     "type": category_type,
-                    "has_voted": has_voted,
+                    "has_voted": proj.id in user_voted_project_ids,
                 })
 
         # ───── MEMBROS ─────
         elif category_type in ["member", "members"]:
             if subcategory:
-                qs = Member.objects.filter(
+                qs = Member.objects.select_related('project').filter(
                     activity=activity,
                     project__subcategory__name=subcategory.name
                 )
             else:
-                qs = Member.objects.filter(activity=activity)
+                qs = Member.objects.select_related('project').filter(activity=activity)
+
+            # PRÉ-CARREGAR TODOS OS VOTES do user para este tipo
+            user_voted_member_ids = set(
+                Vote.objects.filter(voter=user, member_id__in=qs.values_list('id', flat=True))
+                .values_list('member_id', flat=True)
+            )
 
             for member in qs:
-                has_voted = Vote.objects.filter(voter=user, member=member).exists()
                 response.append({
                     "id": member.id,
                     "name": member.name or "",
@@ -216,7 +230,7 @@ def get_category_items(request):
                     "activity": activity.name,
                     "project": member.project.name if member.project else "",
                     "type": category_type,
-                    "has_voted": has_voted,
+                    "has_voted": member.id in user_voted_member_ids,
                 })
 
         # ───── STANDS ─────
@@ -225,15 +239,20 @@ def get_category_items(request):
             if subcategory:
                 qs = qs.filter(subcategory=subcategory)
 
+            # PRÉ-CARREGAR TODOS OS VOTES do user para este tipo
+            user_voted_stand_ids = set(
+                Vote.objects.filter(voter=user, stand_id__in=qs.values_list('id', flat=True))
+                .values_list('stand_id', flat=True)
+            )
+
             for stand in qs:
-                has_voted = Vote.objects.filter(voter=user, stand=stand).exists()
                 response.append({
                     "id": stand.id,
                     "name": stand.name or "",
                     "cover": get_cover(stand.stand_cover),
                     "activity": activity.name,
                     "type": category_type,
-                    "has_voted": has_voted,
+                    "has_voted": stand.id in user_voted_stand_ids,
                 })
 
         return Response({"data": response}, status=status.HTTP_200_OK)
@@ -249,7 +268,7 @@ def get_category_items(request):
 @vary_on_cookie
 @api_view(["GET"])
 def get_members(request):
-    members = Member.objects.all()
+    members = Member.objects.select_related('activity', 'project').all()
     serializer = GetMemberSerializer(members, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -259,7 +278,7 @@ def get_members(request):
 @api_view(["GET"])
 def get_member(request, member_id):
     try:
-        member = Member.objects.filter(id=member_id)
+        member = Member.objects.select_related('activity', 'project').filter(id=member_id)
     except Member.DoesNotExist:
         return Response({"error": "Member not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -323,7 +342,7 @@ def get_members_by_category(request, category_id):
             {"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
-    members = Member.objects.filter(project__category=category)
+    members = Member.objects.select_related('project').filter(project__category=category)
     serializer = GetMemberSerializer(members, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -332,7 +351,7 @@ def get_members_by_category(request, category_id):
 @vary_on_cookie
 @api_view(["GET"])
 def get_votes(request):
-    votes = Vote.objects.all()
+    votes = Vote.objects.select_related('voter', 'project', 'member', 'stand').all()
     serializer = VoteSerializer(votes, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -341,7 +360,11 @@ def get_votes(request):
 @vary_on_cookie
 @api_view(["GET"])
 def get_activities(request):
-    activitys = Activity.objects.all()
+    activitys = (
+        Activity.objects
+        .prefetch_related('categories', 'projects', 'members', 'subcategories')
+        .all()
+    )
     serializer = GetActivitySerializer(activitys, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 

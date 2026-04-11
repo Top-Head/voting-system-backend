@@ -1,4 +1,4 @@
-from django.db.models import Count, F, Value, Q
+from django.db.models import Count, F, Value, Q, Prefetch
 from django.db.models import CharField
 from api.models import Vote
 
@@ -6,8 +6,21 @@ from api.models import Vote
 def generate_vote_ranking(activity_id):
     results = []
 
-    activity_votes = Vote.objects.filter(
-        Q(project__activity=activity_id) | Q(member__activity=activity_id) | Q(stand__activity=activity_id)
+    # OTIMIZAÇÃO: Usar prefetch_related para evitar N+1 queries
+    # Em vez de fazer query separada para cada tipo de vote
+    activity_votes = Vote.objects.select_related(
+        'project__activity',
+        'project__category',
+        'project__subcategory',
+        'member__activity',
+        'member__project__category',
+        'member__project__subcategory',
+        'stand__activity',
+        'stand__category'
+    ).filter(
+        Q(project__activity_id=activity_id) |
+        Q(member__activity_id=activity_id) |
+        Q(stand__activity_id=activity_id)
     )
 
     vote_targets = ["stand", "member", "project"]

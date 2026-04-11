@@ -114,13 +114,23 @@ class Voter(AbstractBaseUser, PermissionsMixin):
 from django.core.exceptions import ValidationError
 
 class Vote(models.Model):
-    voter = models.ForeignKey(Voter, on_delete=models.CASCADE, related_name="votes")
+    voter = models.ForeignKey(Voter, on_delete=models.CASCADE, related_name="votes", db_index=True)
     
-    project = models.ForeignKey("Project", on_delete=models.CASCADE, null=True, blank=True, related_name="votes")
-    member = models.ForeignKey("Member", on_delete=models.CASCADE, null=True, blank=True, related_name="votes")
-    stand = models.ForeignKey("Stand", on_delete=models.CASCADE, null=True, blank=True, related_name="votes")
+    project = models.ForeignKey("Project", on_delete=models.CASCADE, null=True, blank=True, related_name="votes", db_index=True)
+    member = models.ForeignKey("Member", on_delete=models.CASCADE, null=True, blank=True, related_name="votes", db_index=True)
+    stand = models.ForeignKey("Stand", on_delete=models.CASCADE, null=True, blank=True, related_name="votes", db_index=True)
     
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['voter', 'project']),
+            models.Index(fields=['voter', 'member']),
+            models.Index(fields=['voter', 'stand']),
+            models.Index(fields=['project', 'created_at']),
+            models.Index(fields=['member', 'created_at']),
+            models.Index(fields=['stand', 'created_at']),
+        ]
 
     def clean(self):
         targets = [bool(self.project), bool(self.member), bool(self.stand)]
