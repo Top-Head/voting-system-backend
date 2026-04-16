@@ -1,7 +1,6 @@
-from api import models
 from rest_framework import status
 from django.db.models import Count, Q
-from django.shortcuts import get_object_or_404
+from rest_framework.pagination import PageNumberPagination 
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.cache import cache_page
@@ -144,11 +143,13 @@ def get_category(request, category_id):
 
 @api_view(["GET"])
 def get_category_items(request):
-    response = []
     category_id = int(request.GET.get("cat_id", 0))
     subcategory_id = int(request.GET.get("subcat_id", 0))
     category_type = request.GET.get("cat_tp", "")
     activity_id = int(request.GET.get("act_id", 0))
+    
+    pages = PageNumberPagination()
+    pages.page_size = 5
 
     if not request.user.is_authenticated:
         return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
@@ -186,15 +187,18 @@ def get_category_items(request):
             qs = Project.objects.filter(activity=activity, category=category)
             if subcategory:
                 qs = qs.filter(subcategory=subcategory)
+                
+            page = pages.paginate_queryset(qs, request)
 
-            # PRÉ-CARREGAR TODOS OS VOTES do user para este tipo (O(n) em vez de O(n²))
             user_voted_project_ids = set(
                 Vote.objects.filter(voter=user, project_id__in=qs.values_list('id', flat=True))
                 .values_list('project_id', flat=True)
             )
+            
+            data = []
 
-            for proj in qs:
-                response.append({
+            for proj in page:
+                data.append({
                     "id": proj.id,
                     "name": proj.name or "",
                     "cover": get_cover(proj.project_cover),
@@ -202,6 +206,9 @@ def get_category_items(request):
                     "type": category_type,
                     "has_voted": proj.id in user_voted_project_ids,
                 })
+            
+            return pages.get_paginated_response(data)
+            
 
         # ───── MEMBROS ─────
         elif category_type in ["member", "members"]:
@@ -212,15 +219,18 @@ def get_category_items(request):
                 )
             else:
                 qs = Member.objects.select_related('project').filter(activity=activity)
+                
+            page = pages.paginate_queryset(qs, request)
 
-            # PRÉ-CARREGAR TODOS OS VOTES do user para este tipo
             user_voted_member_ids = set(
                 Vote.objects.filter(voter=user, member_id__in=qs.values_list('id', flat=True))
                 .values_list('member_id', flat=True)
             )
+            
+            data = []
 
             for member in qs:
-                response.append({
+                data.append({
                     "id": member.id,
                     "name": member.name or "",
                     "cover": get_cover(member.profile_image),
@@ -232,21 +242,26 @@ def get_category_items(request):
                     "type": category_type,
                     "has_voted": member.id in user_voted_member_ids,
                 })
+                
+            return pages.get_paginated_response(data)
 
         # ───── STANDS ─────
         elif category_type == "stand":
             qs = Stand.objects.filter(activity=activity, category=category)
             if subcategory:
                 qs = qs.filter(subcategory=subcategory)
+                
+            page = pages.paginate_queryset(qs, request)
 
-            # PRÉ-CARREGAR TODOS OS VOTES do user para este tipo
             user_voted_stand_ids = set(
                 Vote.objects.filter(voter=user, stand_id__in=qs.values_list('id', flat=True))
                 .values_list('stand_id', flat=True)
             )
+            
+            data = []
 
             for stand in qs:
-                response.append({
+                data.append({
                     "id": stand.id,
                     "name": stand.name or "",
                     "cover": get_cover(stand.stand_cover),
@@ -254,8 +269,8 @@ def get_category_items(request):
                     "type": category_type,
                     "has_voted": stand.id in user_voted_stand_ids,
                 })
-
-        return Response({"data": response}, status=status.HTTP_200_OK)
+                
+            return pages.get_paginated_response(data)
 
     except Exception as e:
         print("get_category_items failed", str(e))

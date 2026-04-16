@@ -6,8 +6,6 @@ from api.models import Vote
 def generate_vote_ranking(activity_id):
     results = []
 
-    # OTIMIZAÇÃO: Usar prefetch_related para evitar N+1 queries
-    # Em vez de fazer query separada para cada tipo de vote
     activity_votes = Vote.objects.select_related(
         'project__activity',
         'project__category',
