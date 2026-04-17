@@ -17,6 +17,11 @@ from api.serializers import (
     VoteSerializer,
 )
 
+class InfiniteScrollPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 
 @cache_page(60 * 5)
 @vary_on_cookie
@@ -143,14 +148,12 @@ def get_category(request, category_id):
 
 @api_view(["GET"])
 def get_category_items(request):
-    response = []
     category_id = int(request.GET.get("cat_id", 0))
     subcategory_id = int(request.GET.get("subcat_id", 0))
     category_type = request.GET.get("cat_tp", "")
     activity_id = int(request.GET.get("act_id", 0))
     
-    pages = PageNumberPagination()
-    pages.page_size = 20
+    pages = InfiniteScrollPagination()
 
     if not request.user.is_authenticated:
         return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
