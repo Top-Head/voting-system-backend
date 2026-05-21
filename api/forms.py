@@ -87,9 +87,10 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ["name", "activity", "category", "subcategory", "project_cover"]
+        fields = ["name", "description", "activity", "category", "subcategory", "project_cover"]
         widgets = {
-            "name": forms.TextInput(attrs={"class": "form-input", "placeholder": "Project name"}),
+            "name": forms.TextInput(attrs={"class": "form-input", "placeholder": "Nome do projeto"}),
+            "description": forms.TextInput(attrs={"class": "form-input", "placeholder": "Descrição do projeto"}),
             "activity": forms.Select(
                 attrs={"class": "form-input", "id": "id_activity", "data-dependent": "categories"}
             ),

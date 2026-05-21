@@ -40,6 +40,7 @@ class SubCategory(models.Model):
 
 class Project(models.Model):
     name = models.CharField(max_length=100)
+    description = models.TextField(default=name)
     activity = models.ForeignKey("Activity", on_delete=models.CASCADE, related_name="projects")
     category = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="projects")
     subcategory = models.ForeignKey("SubCategory", on_delete=models.CASCADE, related_name="projects")
