@@ -42,7 +42,6 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
-            "description",
             "activity",
             "category",
             "subcategory",
