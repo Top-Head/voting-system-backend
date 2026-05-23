@@ -1,7 +1,10 @@
 import sib_api_v3_sdk
 import os
 from django.conf import settings
+from dotenv import load_dotenv
 from django.template.loader import render_to_string
+
+load_dotenv()
 
 def send_verification_email(email, code):
     if not settings.BREVO_API_KEY:
