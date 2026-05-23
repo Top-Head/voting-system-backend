@@ -1,19 +1,17 @@
 import sib_api_v3_sdk
-import os
 from django.conf import settings
-from dotenv import load_dotenv
 from django.template.loader import render_to_string
+from sib_api_v3_sdk.rest import ApiException
 
-load_dotenv()
 
 def send_verification_email(email, code):
-    if not settings.BREVO_API_KEY:
+    brevo_api_key = (settings.BREVO_API_KEY or "").strip()
+
+    if not brevo_api_key:
         raise ValueError("BREVO_API_KEY is not configured")
 
-    BREVO = os.getenv("BREVO_API_KEY")
-
     configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = BREVO
+    configuration.api_key["api-key"] = brevo_api_key
 
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
         sib_api_v3_sdk.ApiClient(configuration)
@@ -31,4 +29,12 @@ def send_verification_email(email, code):
         html_content=html,
     )
 
-    api_instance.send_transac_email(email_data)
+    try:
+        api_instance.send_transac_email(email_data)
+    except ApiException as exc:
+        if exc.status == 401:
+            raise ValueError(
+                "Brevo API key is unauthorized. Generate a new Brevo SMTP/API key "
+                "and update BREVO_API_KEY in .env."
+            ) from exc
+        raise
